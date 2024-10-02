@@ -20,7 +20,7 @@ import se.ifmo.is_lab1.models.enums.Country;
 @Setter
 public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
     private Long id;
 

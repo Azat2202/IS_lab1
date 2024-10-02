@@ -44,6 +44,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(configurer -> configurer
                         .requestMatchers("/api/auth/**")
                         .permitAll()
+                        .requestMatchers("/api/**")
+                        .permitAll()
                         .anyRequest()
                         .permitAll())
                 .anonymous(AbstractHttpConfigurer::disable)
