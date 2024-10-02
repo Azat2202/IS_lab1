@@ -4,21 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
-    <changeSet id="1727821666461-1" author="Azat222">
-        <sql>CREATE TYPE color AS ENUM ('RED', 'BLACK', 'BLUE', 'BROWN')</sql>
-        <sql>CREATE TYPE country AS ENUM ('FRANCE', 'SPAIN', 'SOUTH_KOREA', 'JAPAN')</sql>
-        <sql>CREATE TYPE formOfEducation AS ENUM ('DISTANCE_EDUCATION', 'FULL_TIME_EDUCATION', 'EVENING_CLASSES')</sql>
-        <sql>CREATE TYPE semester AS ENUM ( 'FIRST', 'SECOND', 'SEVENTH', 'EIGHTH')</sql>
-        <rollback>
-            <sql>DROP TYPE color</sql>
-            <sql>DROP TYPE country</sql>
-            <sql>DROP TYPE formOfEducation</sql>
-            <sql>DROP TYPE semester</sql>
-        </rollback>
-    </changeSet>
     <changeSet id="1727822741826-1" author="Azat222">
         <createTable tableName="coordinates">
-            <column name="id" type="serial">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="x" type="float"/>
@@ -27,7 +15,7 @@
             </column>
         </createTable>
         <createTable tableName="location">
-            <column name="id" type="serial">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="x" type="float"/>
@@ -40,26 +28,26 @@
             <column name="name" type="varchar(255)"/>
         </createTable>
         <createTable tableName="person">
-            <column name="id" type="serial">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="eye_color" type="color">
+            <column name="eye_color" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="hair_color" type="color"/>
+            <column name="hair_color" type="varchar(50)"/>
             <column name="location_id" type="int">
                 <constraints nullable="false" foreignKeyName="fk_person_location" references="location(id)"/>
             </column>
             <column name="weight" type="double">
                 <constraints nullable="false" checkConstraint="weight > 0"/>
             </column>
-            <column name="nationality" type="country"/>
+            <column name="nationality" type="varchar(50)"/>
         </createTable>
         <createTable tableName="study_group">
-            <column name="id" type="serial">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
             <column name="name" type="varchar(255)">
@@ -80,11 +68,11 @@
             <column name="transferred_students" type="int">
                 <constraints nullable="false" checkConstraint="transferred_students > 0"/>
             </column>
-            <column name="form_of_education" type="formOfEducation">
+            <column name="form_of_education" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="should_be_expelled" type="int"/>
-            <column name="semester" type="semester">
+            <column name="semester" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="group_admin_id" type="int">

@@ -7,9 +7,11 @@ services:
       - POSTGRES_USER=study
       - POSTGRES_PASSWORD=study
     ports:
-      - "5434:5432"
+      - 5433:5432
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U study -d study" ]
       interval: 5s
@@ -24,8 +26,14 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "80:8080"
+      - 8080:8080
+    networks:
+      - backend
 
+networks:
+  keycloak:
+  backend:
 
 volumes:
   db-data:
+  keycloak-data:
