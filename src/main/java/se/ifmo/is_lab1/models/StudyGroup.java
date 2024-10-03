@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -57,11 +58,15 @@ public class StudyGroup {
     private Integer shouldBeExpelled; //Значение поля должно быть больше 0, Поле может быть null
 
     @Column(nullable = false)
-    private Semester semesterEnum; //Поле не может быть null
+    private Semester semester; //Поле не может быть null
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn
     private Person groupAdmin; //Поле может быть null
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User user;
 
     @PrePersist
     protected void onCreate() {

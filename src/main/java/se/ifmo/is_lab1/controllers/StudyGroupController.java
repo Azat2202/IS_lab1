@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.ifmo.is_lab1.dto.collection.StudyGroupRequest;
+import se.ifmo.is_lab1.dto.collection.UpdateStudyGroupRequest;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.services.StudyGroupService;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,6 +32,11 @@ public class StudyGroupController {
         return ResponseEntity.of(studyGroupService.getStudyGroup(id));
     }
 
+    @GetMapping
+    public List<StudyGroupResponse> getAllStudyGroups() {
+        return studyGroupService.getAllStudyGroups();
+    }
+
     @PostMapping
     public StudyGroupResponse createStudyGroup(@RequestBody @Valid StudyGroupRequest studyGroupRequest) {
         return studyGroupService.createStudyGroup(studyGroupRequest);
@@ -40,7 +48,7 @@ public class StudyGroupController {
     }
 
     @PutMapping
-    public StudyGroupResponse updateStudyGroup(@RequestBody @Valid StudyGroupRequest studyGroupRequest) {
+    public StudyGroupResponse updateStudyGroup(@RequestBody @Valid UpdateStudyGroupRequest studyGroupRequest) {
         return studyGroupService.updateStudyGroup(studyGroupRequest);
     }
 }

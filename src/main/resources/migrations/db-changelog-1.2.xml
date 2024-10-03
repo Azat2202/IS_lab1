@@ -4,7 +4,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
-    <include file="migrations/db-changelog-1.0.xml"/>
-    <include file="migrations/db-changelog-1.1.xml"/>
-    <include file="migrations/db-changelog-1.2.xml"/>
+    <changeSet id="1727950719988-1" author="Azat222">
+        <addColumn tableName="study_group">
+            <column name="user_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_study_group_users" references="users(id)"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

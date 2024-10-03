@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import se.ifmo.is_lab1.models.enums.Role;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**")
                         .permitAll()
                         .requestMatchers("/api/**")
-                        .permitAll()
+                        .hasAuthority(Role.DEFAULT.name())
                         .anyRequest()
                         .permitAll())
                 .anonymous(AbstractHttpConfigurer::disable)

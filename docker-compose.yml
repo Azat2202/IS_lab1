@@ -31,9 +31,7 @@ services:
       - backend
 
 networks:
-  keycloak:
   backend:
 
 volumes:
   db-data:
-  keycloak-data:
