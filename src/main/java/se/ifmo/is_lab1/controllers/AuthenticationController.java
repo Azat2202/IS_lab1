@@ -1,5 +1,6 @@
 package se.ifmo.is_lab1.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,14 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
+    @SecurityRequirements
     public ResponseEntity<UserResponse> register(final @Validated @RequestBody RegisterUserDto registerUserDto) {
         UserResponse registeredUser = authenticationService.signup(registerUserDto);
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")
+    @SecurityRequirements
     public ResponseEntity<JwtResponse> authenticate(final @Validated @RequestBody JwtDto jwtDto) {
         User authenticatedUser = authenticationService.authenticate(jwtDto);
         String jwtToken = jwtUserService.generateToken(authenticatedUser);

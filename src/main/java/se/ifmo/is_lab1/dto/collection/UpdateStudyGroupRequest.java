@@ -39,7 +39,7 @@ public class UpdateStudyGroupRequest {
     private Integer shouldBeExpelled; //Значение поля должно быть больше 0, Поле может быть null
 
     @NotNull
-    private Semester semesterEnum; //Поле не может быть null
+    private Semester semester; //Поле не может быть null
 
     private Long groupAdminId; //Поле может быть null
 }
