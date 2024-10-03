@@ -45,8 +45,12 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(configurer -> configurer
                         .requestMatchers("/api/auth/**")
                         .permitAll()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole(Role.ADMIN.name())
+                        .requestMatchers("/api/user/proposal")
+                        .not().hasRole(Role.ADMIN.name())
                         .requestMatchers("/api/**")
-                        .hasAuthority(Role.DEFAULT.name())
+                        .hasRole(Role.DEFAULT.name())
                         .anyRequest()
                         .permitAll())
                 .anonymous(AbstractHttpConfigurer::disable)

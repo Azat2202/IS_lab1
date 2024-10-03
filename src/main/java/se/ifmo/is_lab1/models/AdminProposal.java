@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AdminRequests {
+public class AdminProposal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false, updatable = false)
@@ -24,5 +24,4 @@ public class AdminRequests {
     @NotNull
     @ManyToOne
     private User user;
-
 }

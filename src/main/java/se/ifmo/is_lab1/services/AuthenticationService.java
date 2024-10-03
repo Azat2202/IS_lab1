@@ -10,6 +10,7 @@ import se.ifmo.is_lab1.dto.authentication.JwtDto;
 import se.ifmo.is_lab1.dto.authentication.RegisterUserDto;
 import se.ifmo.is_lab1.messages.authentication.UserResponse;
 import se.ifmo.is_lab1.models.User;
+import se.ifmo.is_lab1.models.enums.Role;
 import se.ifmo.is_lab1.repositories.UserRepository;
 
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class AuthenticationService {
             throw new IllegalStateException("User with this username already exists.");
         }
         User user = modelMapper.map(input, User.class);
+        user.setRole(Role.DEFAULT);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return modelMapper.map(userRepository.save(user), UserResponse.class);

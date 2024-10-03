@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.dto.collection.StudyGroupRequest;
 import se.ifmo.is_lab1.dto.collection.UpdateStudyGroupRequest;
-import se.ifmo.is_lab1.exceptions.NotFoundCoordinatesException;
-import se.ifmo.is_lab1.exceptions.NotFoundPersonException;
-import se.ifmo.is_lab1.exceptions.NotFoundStudyGroupException;
+import se.ifmo.is_lab1.exceptions.CoordinatesNotFoundException;
+import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
+import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
 import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.models.StudyGroup;
@@ -54,12 +54,12 @@ public class StudyGroupService {
         if(studyGroupRequest.getGroupAdminId() != null) {
             requestObject.setGroupAdmin(
                     personRepository.findById(studyGroupRequest.getGroupAdminId())
-                            .orElseThrow(NotFoundPersonException::new)
+                            .orElseThrow(PersonNotFoundException::new)
             );
         }
         requestObject.setCoordinates(
                 coordinatesRepository.findById(studyGroupRequest.getCoordinatesId())
-                        .orElseThrow(NotFoundCoordinatesException::new)
+                        .orElseThrow(CoordinatesNotFoundException::new)
         );
         requestObject.setUser(user);
         StudyGroup savedStudyGroup = studyGroupRepository.save(requestObject);
@@ -69,7 +69,7 @@ public class StudyGroupService {
     public StudyGroupResponse updateStudyGroup(UpdateStudyGroupRequest studyGroupRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup existingStudyGroup = studyGroupRepository.findById(studyGroupRequest.getId())
-                .orElseThrow(NotFoundStudyGroupException::new);
+                .orElseThrow(StudyGroupNotFoundException::new);
         if (!existingStudyGroup
                 .getUser()
                 .getId()
@@ -79,12 +79,12 @@ public class StudyGroupService {
         modelMapper.map(studyGroupRequest, existingStudyGroup);
         existingStudyGroup.setCoordinates(
                 coordinatesRepository.findById(studyGroupRequest.getCoordinatesId())
-                        .orElseThrow(NotFoundCoordinatesException::new)
+                        .orElseThrow(CoordinatesNotFoundException::new)
         );
         if(studyGroupRequest.getGroupAdminId() != null) {
             existingStudyGroup.setGroupAdmin(
                     personRepository.findById(studyGroupRequest.getGroupAdminId())
-                            .orElseThrow(NotFoundPersonException::new)
+                            .orElseThrow(PersonNotFoundException::new)
             );
         }
         StudyGroup response = studyGroupRepository.save(existingStudyGroup);
@@ -95,14 +95,14 @@ public class StudyGroupService {
     public StudyGroupResponse deleteStudyGroup(Integer objectId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if ( !studyGroupRepository.findById(objectId)
-                .orElseThrow(NotFoundStudyGroupException::new)
+                .orElseThrow(StudyGroupNotFoundException::new)
                 .getUser()
                 .getId()
                 .equals(user.getId())) {
             throw new ObjectDontBelongToUserException();
         }
         StudyGroup studyGroup = studyGroupRepository.findById(objectId)
-                .orElseThrow(NotFoundStudyGroupException::new);
+                .orElseThrow(StudyGroupNotFoundException::new);
         studyGroupRepository.deleteById(objectId);
         if(studyGroup.getGroupAdmin().getStudyGroups().size() == 1){
             personRepository.deleteById(studyGroup.getGroupAdmin().getId());

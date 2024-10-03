@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import se.ifmo.is_lab1.models.enums.Role;
 
 @Data
 @Builder
@@ -18,10 +17,6 @@ public class RegisterUserDto {
     @NotBlank
     @Schema(description = "Пароль пользователя", example = "P@ssw0rd")
     private String password;
-
-    @NotNull
-    @Schema(description = "Роль пользователя", example = "DEFAULT")
-    private Role role;
 }
 
 
