@@ -10,10 +10,6 @@ import se.ifmo.is_lab1.models.StudyGroup;
 
 @Repository
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Integer> {
-    Page<StudyGroup> findByNameContainingAndGroupAdminNameContaining(
-            String groupName,
-            String adminName,
-            Pageable pageable);
 
     @Query("select s from StudyGroup s " +
             "join s.groupAdmin where " +
