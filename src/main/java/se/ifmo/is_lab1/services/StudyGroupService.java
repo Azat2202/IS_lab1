@@ -2,7 +2,6 @@ package se.ifmo.is_lab1.services;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,9 +36,14 @@ public class StudyGroupService {
         return studyGroup.map(group -> modelMapper.map(group, StudyGroupResponse.class));
     }
 
-    public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable){
-        Page<StudyGroup> studyGroups = studyGroupRepository.findAll(pageable);
-        return modelMapper.map(studyGroups, new TypeToken<Page<StudyGroupResponse>>() {}.getType());
+    public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable,
+                                                      String groupName,
+                                                      String adminName){
+        Page<StudyGroup> studyGroups =
+                studyGroupRepository.findByFilter(
+                    groupName, adminName, pageable
+                );
+        return studyGroups.map(s -> modelMapper.map(s, StudyGroupResponse.class));
     }
 
     public StudyGroupResponse createStudyGroup(StudyGroupRequest studyGroupRequest) {

@@ -1,13 +1,10 @@
 package se.ifmo.is_lab1.messages.collection;
 
 import lombok.Data;
-
+import se.ifmo.is_lab1.messages.authentication.UserResponse;
 import se.ifmo.is_lab1.models.Coordinates;
-
 import se.ifmo.is_lab1.models.Person;
-
 import se.ifmo.is_lab1.models.enums.FormOfEducation;
-
 import se.ifmo.is_lab1.models.enums.Semester;
 
 @Data
@@ -33,6 +30,8 @@ public class StudyGroupResponse {
     private Semester semesterEnum;
 
     private Person groupAdmin;
+
+    private UserResponse user;
 
 }
 

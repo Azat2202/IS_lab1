@@ -66,6 +66,7 @@ public class StudyGroup {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn
     private User user;
 
     @PrePersist
