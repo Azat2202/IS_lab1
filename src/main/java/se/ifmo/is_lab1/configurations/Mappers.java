@@ -18,9 +18,9 @@ public class Mappers {
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
                 .setAmbiguityIgnored(true)
                 .setMatchingStrategy(MatchingStrategies.STRICT);
-        TypeMap<UpdateStudyGroupRequest, StudyGroup> propertyMapper =
+        TypeMap<UpdateStudyGroupRequest, StudyGroup> updateStudyGroupMapper =
                 mapper.createTypeMap(UpdateStudyGroupRequest.class, StudyGroup.class);
-        propertyMapper.addMappings(
+        updateStudyGroupMapper.addMappings(
                 expression -> {
                     expression.map(
                             src -> null, StudyGroup::setCoordinates
