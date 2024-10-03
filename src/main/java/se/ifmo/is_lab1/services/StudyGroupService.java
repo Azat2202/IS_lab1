@@ -16,6 +16,7 @@ import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.models.StudyGroup;
 import se.ifmo.is_lab1.models.User;
+import se.ifmo.is_lab1.models.enums.Role;
 import se.ifmo.is_lab1.repositories.CoordinatesRepository;
 import se.ifmo.is_lab1.repositories.LocationRepository;
 import se.ifmo.is_lab1.repositories.PersonRepository;
@@ -39,10 +40,10 @@ public class StudyGroupService {
 
     public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable,
                                                       String groupName,
-                                                      String adminName){
+                                                      String adminName) {
         Page<StudyGroup> studyGroups =
                 studyGroupRepository.findByFilter(
-                    groupName, adminName, pageable
+                        groupName, adminName, pageable
                 );
         return studyGroups.map(s -> modelMapper.map(s, StudyGroupResponse.class));
     }
@@ -50,7 +51,7 @@ public class StudyGroupService {
     public StudyGroupResponse createStudyGroup(StudyGroupRequest studyGroupRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup requestObject = modelMapper.map(studyGroupRequest, StudyGroup.class);
-        if(studyGroupRequest.getGroupAdminId() != null) {
+        if (studyGroupRequest.getGroupAdminId() != null) {
             requestObject.setGroupAdmin(
                     personRepository.findById(studyGroupRequest.getGroupAdminId())
                             .orElseThrow(PersonNotFoundException::new)
@@ -69,10 +70,12 @@ public class StudyGroupService {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup existingStudyGroup = studyGroupRepository.findById(studyGroupRequest.getId())
                 .orElseThrow(StudyGroupNotFoundException::new);
-        if (!existingStudyGroup
-                .getUser()
-                .getId()
-                .equals(user.getId())) {
+
+        if (!(existingStudyGroup.getIsEditable() && user.getRole().equals(Role.ADMIN)) ||
+                !existingStudyGroup
+                        .getUser()
+                        .getId()
+                        .equals(user.getId())) {
             throw new ObjectDontBelongToUserException();
         }
         modelMapper.map(studyGroupRequest, existingStudyGroup);
@@ -80,7 +83,7 @@ public class StudyGroupService {
                 coordinatesRepository.findById(studyGroupRequest.getCoordinatesId())
                         .orElseThrow(CoordinatesNotFoundException::new)
         );
-        if(studyGroupRequest.getGroupAdminId() != null) {
+        if (studyGroupRequest.getGroupAdminId() != null) {
             existingStudyGroup.setGroupAdmin(
                     personRepository.findById(studyGroupRequest.getGroupAdminId())
                             .orElseThrow(PersonNotFoundException::new)
@@ -93,7 +96,7 @@ public class StudyGroupService {
     @Transactional
     public StudyGroupResponse deleteStudyGroup(Integer objectId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if ( !studyGroupRepository.findById(objectId)
+        if (!studyGroupRepository.findById(objectId)
                 .orElseThrow(StudyGroupNotFoundException::new)
                 .getUser()
                 .getId()
@@ -103,13 +106,13 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(objectId)
                 .orElseThrow(StudyGroupNotFoundException::new);
         studyGroupRepository.deleteById(objectId);
-        if(studyGroup.getGroupAdmin().getStudyGroups().size() == 1){
+        if (studyGroup.getGroupAdmin().getStudyGroups().size() == 1) {
             personRepository.deleteById(studyGroup.getGroupAdmin().getId());
-            if(studyGroup.getGroupAdmin().getLocation().getPersons().size() == 1){
+            if (studyGroup.getGroupAdmin().getLocation().getPersons().size() == 1) {
                 locationRepository.deleteById(studyGroup.getGroupAdmin().getLocation().getId());
             }
         }
-        if(studyGroup.getCoordinates().getStudyGroups().size() == 1){
+        if (studyGroup.getCoordinates().getStudyGroups().size() == 1) {
             coordinatesRepository.deleteById(studyGroup.getCoordinates().getId());
         }
         return modelMapper.map(studyGroup, StudyGroupResponse.class);

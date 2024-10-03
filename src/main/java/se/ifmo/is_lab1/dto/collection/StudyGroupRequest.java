@@ -39,4 +39,6 @@ public class StudyGroupRequest {
     private Semester semester; //Поле не может быть null
 
     private Long groupAdminId; //Поле может быть null
+
+    private Boolean isEditable = Boolean.TRUE;
 }
