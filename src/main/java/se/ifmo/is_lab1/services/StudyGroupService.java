@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class StudyGroupManipulationService {
+public class StudyGroupService {
 
     private final StudyGroupRepository studyGroupRepository;
     private final CoordinatesRepository coordinatesRepository;

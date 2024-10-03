@@ -19,6 +19,8 @@ import se.ifmo.is_lab1.models.enums.Semester;
 import java.time.Instant;
 import java.time.ZoneId;
 
+// TODO: add user field
+
 @Entity
 @NoArgsConstructor
 @Getter
@@ -32,7 +34,7 @@ public class StudyGroup {
     @Column(nullable = false)
     private String name; //Поле не может быть null, Строка не может быть пустой
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Coordinates coordinates; //Поле не может быть null
 
@@ -57,7 +59,7 @@ public class StudyGroup {
     @Column(nullable = false)
     private Semester semesterEnum; //Поле не может быть null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn
     private Person groupAdmin; //Поле может быть null
 

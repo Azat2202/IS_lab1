@@ -34,7 +34,7 @@ public class Person {
     private Color hairColor; //Поле может быть null
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Location location; //Поле не может быть null
 

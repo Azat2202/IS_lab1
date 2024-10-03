@@ -3,6 +3,8 @@ package se.ifmo.is_lab1;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
+
 @SpringBootApplication
 public class IsLab1Application {
 
