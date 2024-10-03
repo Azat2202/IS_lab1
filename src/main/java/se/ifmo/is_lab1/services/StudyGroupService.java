@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.dto.collection.StudyGroupRequest;
 import se.ifmo.is_lab1.dto.collection.UpdateStudyGroupRequest;
 import se.ifmo.is_lab1.exceptions.CoordinatesNotFoundException;
+import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
 import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
-import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.models.StudyGroup;
 import se.ifmo.is_lab1.models.User;
@@ -20,8 +20,6 @@ import se.ifmo.is_lab1.repositories.CoordinatesRepository;
 import se.ifmo.is_lab1.repositories.LocationRepository;
 import se.ifmo.is_lab1.repositories.PersonRepository;
 import se.ifmo.is_lab1.repositories.StudyGroupRepository;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +31,10 @@ public class StudyGroupService {
     private final ModelMapper modelMapper;
     private final LocationRepository locationRepository;
 
-    public Optional<StudyGroupResponse> getStudyGroup(Integer id) {
-        Optional<StudyGroup> studyGroup = studyGroupRepository.findById(id);
-        return studyGroup.map(group -> modelMapper.map(group, StudyGroupResponse.class));
+    public StudyGroupResponse getStudyGroup(Integer id) {
+        StudyGroup studyGroup = studyGroupRepository.findById(id)
+                .orElseThrow(StudyGroupNotFoundException::new);
+        return modelMapper.map(studyGroup, StudyGroupResponse.class);
     }
 
     public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable,

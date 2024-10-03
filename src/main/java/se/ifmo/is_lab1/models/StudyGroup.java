@@ -14,18 +14,21 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import se.ifmo.is_lab1.models.enums.FormOfEducation;
 import se.ifmo.is_lab1.models.enums.Semester;
 
 import java.time.Instant;
 import java.time.ZoneId;
 
-// TODO: add user field
 
 @Entity
 @NoArgsConstructor
 @Getter
 @Setter
+@SQLDelete(sql = "UPDATE study_group SET is_deleted = TRUE WHERE id=?")
+@SQLRestriction("is_deleted <> TRUE")
 public class StudyGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,6 +66,14 @@ public class StudyGroup {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn
     private Person groupAdmin; //Поле может быть null
+
+    @Column
+    @NotNull
+    private Boolean isDeleted = Boolean.FALSE;
+
+    @Column
+    @NotNull
+    private Boolean isEditable = Boolean.FALSE;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
