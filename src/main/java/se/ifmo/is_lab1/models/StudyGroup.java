@@ -14,8 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 import se.ifmo.is_lab1.models.enums.FormOfEducation;
 import se.ifmo.is_lab1.models.enums.Semester;
 
@@ -27,9 +25,7 @@ import java.time.ZoneId;
 @NoArgsConstructor
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE study_group SET is_deleted = TRUE WHERE id=?")
-@SQLRestriction("is_deleted <> TRUE")
-public class StudyGroup {
+public class StudyGroup{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
@@ -69,10 +65,6 @@ public class StudyGroup {
 
     @Column
     @NotNull
-    private Boolean isDeleted = Boolean.FALSE;
-
-    @Column
-    @NotNull
     private Boolean isEditable = Boolean.FALSE;
 
     @NotNull
@@ -85,5 +77,4 @@ public class StudyGroup {
         Instant now = Instant.now();
         this.creationDate = now.atZone(ZoneId.systemDefault());
     }
-
 }

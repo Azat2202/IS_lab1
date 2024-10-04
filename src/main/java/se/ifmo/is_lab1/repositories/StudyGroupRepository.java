@@ -21,4 +21,5 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Integer>
             @Param("adminName") String adminName,
             Pageable pageable
     );
+
 }
