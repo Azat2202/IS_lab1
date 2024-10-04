@@ -1,3 +1,4 @@
+open-api.json
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
