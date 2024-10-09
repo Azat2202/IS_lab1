@@ -21,14 +21,18 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
     depends_on:
       db:
         condition: service_healthy
     ports:
       - 8080:8080
+      - 9090:9090
     networks:
       - backend
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
 
 networks:
   backend:
