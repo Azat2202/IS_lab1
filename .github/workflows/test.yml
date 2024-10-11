@@ -27,21 +27,21 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: move to backend dir
-      run: cd backend
     - name: Test + generate springdoc
-      run: ./mvnw test
+      run: |
+          cd backend
+          ./mvnw test
     - name: Generate Swagger UI
       uses: Legion2/swagger-ui-action@v1
       with:
         output: swagger-ui
-        spec-file: open-api.json
+        spec-file: backend/open-api.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: swagger-ui 
+        publish_dir: backend/swagger-ui 
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
