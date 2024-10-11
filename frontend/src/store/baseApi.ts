@@ -6,7 +6,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from "./store";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: '/api',
+  baseUrl: 'http://localhost:8080/',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token; // Assuming you store the token in your auth slice
     if (token) {
@@ -17,8 +17,6 @@ const baseQuery = fetchBaseQuery({
 });
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:8080/'
-  }),
+  baseQuery: baseQuery,
   endpoints: () => ({}),
 })

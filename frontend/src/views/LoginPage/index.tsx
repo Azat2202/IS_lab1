@@ -1,15 +1,22 @@
 import { useAuthenticateMutation } from "../../store/types.generated";
 import React, { useState } from "react";
+import { Routes, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setToken } from "../../store/authSlice";
+import { RootState } from "../../store/store";
 
-export function MainPage() {
+export function LoginPage() {
   const [ username, setUsername ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ authenticate, { isLoading, isSuccess, isError, data, error } ] = useAuthenticateMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     try {
       const jwtDto = { username, password };
       const response = await authenticate({ jwtDto }).unwrap();
-      console.log('Login successful:', response);
+      dispatch(setToken(response.token!!));
+      navigate("/main");
     } catch ( err ) {
       console.error('Login failed:', err);
     }
@@ -21,13 +28,13 @@ export function MainPage() {
       <p>Высшего образования</p>
       <p className="italic">Факультет Программной Инженерии и Компьютерной Техники</p>
     </header>
-    <main className="flex flex-col items-center space-y-2 mb-10">
+    <main className="flex flex-col items-center space-y-2 mb-32">
       <h1 className="text-lg font-bold">Лабораторная работа 1 по Информационным Системам</h1>
       <p>Управление коллекцией StudyGroup</p>
       <p>Вариант №368796</p>
     </main>
     <footer className="space-y-8 text-center">
-      <div className="flex flex-col space-y-2 mr-32 mb-20">
+      <div className="flex flex-col space-y-2 mr-64 mb-32">
         <p className="text-right">
           Группа: P3316<br/>
           Выполнил: <br/>
@@ -41,7 +48,7 @@ export function MainPage() {
           />
           <br/>
           <button onClick={ handleLogin } disabled={ isLoading }>
-            { isLoading ? 'Проверяю...' : 'Проверил' }
+            {isError ? 'Не проверено!' :   ( isLoading ? 'Проверяю...' : 'Проверить') }
           </button><br/> Бострикова Д. А.</p>
       </div>
       <div>
@@ -49,23 +56,5 @@ export function MainPage() {
         <p>2024</p>
       </div>
     </footer>
-    {/*<input*/ }
-    {/*  type="text"*/ }
-    {/*  placeholder="Username"*/ }
-    {/*  value={ username }*/ }
-    {/*  onChange={ (e) => setUsername(e.target.value) }*/ }
-    {/*/>*/ }
-    {/*<input*/ }
-    {/*  type="password"*/ }
-    {/*  placeholder="Password"*/ }
-    {/*  value={ password }*/ }
-    {/*  onChange={ (e) => setPassword(e.target.value) }*/ }
-    {/*/>*/ }
-    {/*<button onClick={ handleLogin } disabled={ isLoading }>*/ }
-    {/*  { isLoading ? 'Logging in...' : 'Login' }*/ }
-    {/*</button>*/ }
-
-    {/*{ isSuccess && <div>Login successful: { JSON.stringify(data) }</div> }*/ }
-    {/*{ isError && <div>Error</div> }*/ }
   </div>
 }

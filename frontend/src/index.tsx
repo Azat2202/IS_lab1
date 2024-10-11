@@ -5,6 +5,9 @@ import { App } from "./app";
 import { api } from "./store/baseApi";
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
 import { BrowserRouter } from "react-router-dom";
+import './index.css';
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -13,9 +16,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ApiProvider api={ api }>
-      <BrowserRouter>
-        <App/>
-      </BrowserRouter>
+      <Provider store={ store }>
+        <BrowserRouter>
+          <App/>
+        </BrowserRouter>
+      </Provider>
     </ApiProvider>
   </React.StrictMode>
 );

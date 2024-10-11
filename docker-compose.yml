@@ -25,14 +25,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
     ports:
       - 8080:8080
       - 9090:9090
     networks:
       - backend
-    environment:
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
 
 networks:
   backend:
