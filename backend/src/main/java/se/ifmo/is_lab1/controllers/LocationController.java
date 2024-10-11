@@ -23,12 +23,12 @@ public class LocationController {
     private final LocationService locationService;
 
     @GetMapping
-    public List<LocationResponse> getAllPersons() {
+    public List<LocationResponse> getAllLocations() {
         return locationService.getAllLocations();
     }
 
     @PostMapping
-    public LocationResponse createPerson(@RequestBody @Valid LocationRequest locationRequest) {
+    public LocationResponse createLocation(@RequestBody @Valid LocationRequest locationRequest) {
         return locationService.createLocation(locationRequest);
     }
 }
