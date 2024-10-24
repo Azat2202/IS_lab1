@@ -16,7 +16,7 @@ export function TableOfContents({ pages }: {pages: Array<TableOfContentsElement>
             onClick={ () => scrollToPage(page) }
             className="text-blue-600 hover:underline"
           >
-            {index + 1}) { name }
+            {index + 1}) { name }{".".repeat((250 - name.length * 2))}{index+1}
           </button>
         </li>
       </ul>

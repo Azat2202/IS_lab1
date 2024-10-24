@@ -69,15 +69,15 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.personRequest,
       }),
     }),
-    getAllPersons1: build.query<
-      GetAllPersons1ApiResponse,
-      GetAllPersons1ApiArg
+    getAllLocations: build.query<
+      GetAllLocationsApiResponse,
+      GetAllLocationsApiArg
     >({
       query: () => ({ url: `/api/collection/location` }),
     }),
-    createPerson1: build.mutation<
-      CreatePerson1ApiResponse,
-      CreatePerson1ApiArg
+    createLocation: build.mutation<
+      CreateLocationApiResponse,
+      CreateLocationApiArg
     >({
       query: (queryArg) => ({
         url: `/api/collection/location`,
@@ -209,10 +209,11 @@ export type CreatePersonApiResponse = /** status 200 OK */ PersonResponse;
 export type CreatePersonApiArg = {
   personRequest: PersonRequest;
 };
-export type GetAllPersons1ApiResponse = /** status 200 OK */ LocationResponse[];
-export type GetAllPersons1ApiArg = void;
-export type CreatePerson1ApiResponse = /** status 200 OK */ LocationResponse;
-export type CreatePerson1ApiArg = {
+export type GetAllLocationsApiResponse =
+  /** status 200 OK */ LocationResponse[];
+export type GetAllLocationsApiArg = void;
+export type CreateLocationApiResponse = /** status 200 OK */ LocationResponse;
+export type CreateLocationApiArg = {
   locationRequest: LocationRequest;
 };
 export type GetAllCoordinatesApiResponse =
@@ -423,8 +424,8 @@ export const {
   useBecomeAdminMutation,
   useGetAllPersonsQuery,
   useCreatePersonMutation,
-  useGetAllPersons1Query,
-  useCreatePerson1Mutation,
+  useGetAllLocationsQuery,
+  useCreateLocationMutation,
   useGetAllCoordinatesQuery,
   useCreateCoordinatesMutation,
   useRegisterMutation,

@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { useAuthenticateMutation, useGetAllStudyGroupsQuery } from "../../store/types.generated";
 import React, { useState } from "react";
-import { CreateObjectModal } from "../CreateObjectModal";
+import { CreateStudyGroupModal } from "../CreateStudyGroupModal";
 import { CreateCoordinatesModal } from "../CreateCoordinatesModal";
 
 export function MainTable() {
@@ -10,7 +10,7 @@ export function MainTable() {
     const [ page, setPage ] = useState(0);
 
     const dispatch = useDispatch();
-    const { data, error, isLoading, isSuccess, isError } = useGetAllStudyGroupsQuery({
+    const { data, error, isLoading, isSuccess, isError, refetch: refetchCollection } = useGetAllStudyGroupsQuery({
         page
     });
     if ( isLoading ) {
@@ -124,8 +124,11 @@ export function MainTable() {
                     </tr>
                     </tfoot>
                 </table>
-                <CreateObjectModal
-                    closeModal={() => setIsStudyGroupModalOpen(false)}
+                <CreateStudyGroupModal
+                    closeModal={() => {
+                        setIsStudyGroupModalOpen(false);
+                        refetchCollection();
+                    }}
                     isModalOpen={isStudyGroupModalOpen}
                 />
 

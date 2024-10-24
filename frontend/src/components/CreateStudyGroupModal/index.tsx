@@ -1,19 +1,19 @@
 import Modal from "../../containers/Modal";
 import React, { useState } from "react";
 import {
-    StudyGroupRequest,
+    StudyGroupRequest, useCreateStudyGroupMutation,
     useGetAllCoordinatesQuery,
     useGetAllPersonsQuery
 } from "../../store/types.generated";
 import { CreateCoordinatesModal } from "../CreateCoordinatesModal";
 import { CreatePersonModal } from "../CreatePersonModal";
 
-interface CreateObjectModalInput {
+interface CreateStudyGroupModalInput {
     isModalOpen: boolean,
     closeModal: () => void
 }
 
-export function CreateObjectModal({ isModalOpen, closeModal }: CreateObjectModalInput) {
+export function CreateStudyGroupModal({ isModalOpen, closeModal }: CreateStudyGroupModalInput) {
     const [ isCoordinatesModalOpen, setIsCoordinatesModalOpen ] = useState(false);
     const [ isPersonModalOpen, setIsPersonModalOpen ] = useState(false);
     const [ formData, setFormData ] = useState<StudyGroupRequest>({
@@ -28,10 +28,11 @@ export function CreateObjectModal({ isModalOpen, closeModal }: CreateObjectModal
         groupAdminId: 0,
         isEditable: false,
     });
+    const [createStudyGroup, { isLoading, isSuccess, isError, data, error }] = useCreateStudyGroupMutation();
     const { data: persons, refetch: refetchPersons } = useGetAllPersonsQuery();
     const { data: coordinates, refetch: refetchCoordinates } = useGetAllCoordinatesQuery();
-    const handleOk = () => {
-        console.log("OK Clicked");
+    const handleOk = async () => {
+        await createStudyGroup({studyGroupRequest: formData}).unwrap();
         closeModal();
     };
 
@@ -92,7 +93,7 @@ export function CreateObjectModal({ isModalOpen, closeModal }: CreateObjectModal
                     }
                 </select>
                 <button className="flex-grow p-1 border border-black bg-blue-300"
-                        onClick={ () => setIsPersonModalOpen(true) }>
+                        onClick={ () => setIsCoordinatesModalOpen(true) }>
                     Создать
                 </button>
             </div>
