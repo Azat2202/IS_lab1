@@ -15,7 +15,7 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
     const [formData, setFormData] = useState<PersonRequest>({
         name: "darya",
         eyeColor: "BLACK",
-        locationId: 0,
+        locationId: 1,
         weight: 0,
         hairColor: "BLACK",
         nationality: "FRANCE"

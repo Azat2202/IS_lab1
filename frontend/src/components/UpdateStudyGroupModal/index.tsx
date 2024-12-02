@@ -1,42 +1,43 @@
 import Modal from "../../containers/Modal";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
-    StudyGroupRequest, useCreateStudyGroupMutation,
+    StudyGroupRequest, StudyGroupResponse, UpdateStudyGroupRequest, useCreateStudyGroupMutation,
     useGetAllCoordinatesQuery,
-    useGetAllPersonsQuery
+    useGetAllPersonsQuery, useUpdateStudyGroupMutation
 } from "../../store/types.generated";
-import { CreateCoordinatesModal } from "../CreateCoordinatesModal";
-import { CreatePersonModal } from "../CreatePersonModal";
+import {CreateCoordinatesModal} from "../CreateCoordinatesModal";
+import {CreatePersonModal} from "../CreatePersonModal";
 import toast from "react-hot-toast";
 
-interface CreateStudyGroupModalInput {
+interface UpdateStudyGroupModalInput {
     isModalOpen: boolean,
     closeModal: () => void,
     isEditable: boolean,
+    group: UpdateStudyGroupRequest
 }
 
-export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: CreateStudyGroupModalInput) {
-    const [ isCoordinatesModalOpen, setIsCoordinatesModalOpen ] = useState(false);
-    const [ isPersonModalOpen, setIsPersonModalOpen ] = useState(false);
-    const [ formData, setFormData ] = useState<StudyGroupRequest>({
-        name: "P3316",
-        coordinatesId: 1,
-        studentsCount: 16,
-        expelledStudents: 5,
-        transferredStudents: 2,
-        formOfEducation: "FULL_TIME_EDUCATION",
-        semester: "FIRST",
-        shouldBeExpelled: 5,
-        groupAdminId: 1,
-        isEditable: false,
-    });
-    const [createStudyGroup, { isLoading, isSuccess, isError, data, error }] = useCreateStudyGroupMutation();
-    const { data: persons, refetch: refetchPersons } = useGetAllPersonsQuery();
-    const { data: coordinates, refetch: refetchCoordinates } = useGetAllCoordinatesQuery();
+export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, group}: UpdateStudyGroupModalInput) {
+    const [isCoordinatesModalOpen, setIsCoordinatesModalOpen] = useState(false);
+    const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
+    const [formData, setFormData] = useState<UpdateStudyGroupRequest>({...group});
+    const [updateStudyGroup, {isLoading, isSuccess, isError, data, error}] = useUpdateStudyGroupMutation();
+    const {data: persons, refetch: refetchPersons} = useGetAllPersonsQuery();
+    const {data: coordinates, refetch: refetchCoordinates} = useGetAllCoordinatesQuery();
+
+    useEffect(() => {
+        if (isModalOpen) {
+            console.log(group)
+            setFormData({...group});
+        }
+    }, [isModalOpen, group]);
+
     const handleOk = async () => {
-        await createStudyGroup({studyGroupRequest: formData}).unwrap()
-            .then(() => toast("Объект успешно создан", { icon: "🎉" }))
-            .catch((e) => toast("Этот объект нельзя создать", { icon: "❌" }));
+        await updateStudyGroup({updateStudyGroupRequest: formData}).unwrap()
+            .then(() => toast("Объект успешно обновлен", {icon: "🎉"}))
+            .catch((e) => {
+                console.log(e)
+                toast("Этот объект нельзя обновить", {icon: "❌"});
+            });
         closeModal();
     };
 
@@ -45,7 +46,7 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
         closeModal();
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData({
             ...formData,
             [name]: name === "studentsCount"
@@ -58,15 +59,16 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 : value,
         });
     };
-    return <Modal isOpen={ isModalOpen } onOk={ handleOk } onClose={ handleCancel }>
+    return <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel}>
         <div className="space-y-2 bg-white">
+            <button onClick={() => setFormData({...group})}>подцепить изменения</button>
             <div className="flex items-center space-x-4">
                 <label className="w-1/3 font-medium text-gray-700">Имя группы</label>
                 <input
                     type="text"
                     name="name"
-                    value={ formData.name }
-                    onChange={ handleChange }
+                    value={formData.name}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black"
                 />
@@ -76,8 +78,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <label className="w-1/3 font-medium text-gray-700">Координаты</label>
                 <select
                     name="Координаты"
-                    value={ formData.coordinatesId }
-                    onChange={ (e) =>
+                    value={formData.coordinatesId}
+                    onChange={(e) =>
                         setFormData({
                             ...formData,
                             coordinatesId: e.target.value ? Number(e.target.value) : 1,
@@ -89,8 +91,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                     {
                         coordinates?.length ? (
                             coordinates.map((coordinate, index) => (
-                                <option key={ index } value={ coordinate.id || "DEFAULT_VALUE" }>
-                                    { `(${ coordinate.x };${ coordinate.y })` || "Unnamed" }
+                                <option key={index} value={coordinate.id || "DEFAULT_VALUE"}>
+                                    {`(${coordinate.x};${coordinate.y})` || "Unnamed"}
                                 </option>
                             ))
                         ) : (
@@ -99,7 +101,7 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                     }
                 </select>
                 <button className="flex-grow p-1 border border-black bg-blue-300"
-                        onClick={ () => setIsCoordinatesModalOpen(true) }>
+                        onClick={() => setIsCoordinatesModalOpen(true)}>
                     Создать
                 </button>
             </div>
@@ -109,8 +111,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <input
                     type="number"
                     name="studentsCount"
-                    value={ formData.studentsCount }
-                    onChange={ handleChange }
+                    value={formData.studentsCount}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 />
@@ -121,8 +123,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <input
                     type="number"
                     name="expelledStudents"
-                    value={ formData.expelledStudents }
-                    onChange={ handleChange }
+                    value={formData.expelledStudents}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 />
@@ -133,8 +135,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <input
                     type="number"
                     name="transferredStudents"
-                    value={ formData.transferredStudents }
-                    onChange={ handleChange }
+                    value={formData.transferredStudents}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 />
@@ -144,8 +146,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <label className="w-1/3 font-medium text-gray-700">Форма обучения</label>
                 <select
                     name="formOfEducation"
-                    value={ formData.formOfEducation }
-                    onChange={ handleChange }
+                    value={formData.formOfEducation}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 >
@@ -160,8 +162,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <input
                     type="number"
                     name="shouldBeExpelled"
-                    value={ formData.shouldBeExpelled || "" }
-                    onChange={ handleChange }
+                    value={formData.shouldBeExpelled || ""}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 />
@@ -171,8 +173,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <label className="w-1/3 font-medium text-gray-700">Семестр</label>
                 <select
                     name="semester"
-                    value={ formData.semester }
-                    onChange={ handleChange }
+                    value={formData.semester}
+                    onChange={handleChange}
                     contentEditable={isEditable}
                     className="flex-grow p-2 border border-black "
                 >
@@ -187,9 +189,9 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 <label className="w-1/3 font-medium text-gray-700">Админ</label>
                 <select
                     name="Админ"
-                    value={ formData.groupAdminId }
+                    value={formData.groupAdminId}
                     contentEditable={isEditable}
-                    onChange={ (e) =>
+                    onChange={(e) =>
                         setFormData({
                             ...formData,
                             groupAdminId: e.target.value ? Number(e.target.value) : undefined,
@@ -200,8 +202,8 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                     {
                         persons?.length ? (
                             persons.map((person, index) => (
-                                <option key={ index } value={ person.id || "DEFAULT_VALUE" }>
-                                    { person.name || "Unnamed" }
+                                <option key={index} value={person.id || "DEFAULT_VALUE"}>
+                                    {person.name || "Unnamed"}
                                 </option>
                             ))
                         ) : (
@@ -210,36 +212,22 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                     }
                 </select>
                 <button className="flex-grow p-1 border border-black bg-blue-300"
-                        onClick={ () => setIsPersonModalOpen(true) }>
+                        onClick={() => setIsPersonModalOpen(true)}>
                     Создать
                 </button>
             </div>
-
-            <div className="flex items-center space-x-4">
-                <input
-                    type="checkbox"
-                    name="isEditable"
-                    checked={ formData.isEditable }
-                    contentEditable={isEditable}
-                    onChange={ () =>
-                        setFormData({ ...formData, isEditable: !formData.isEditable })
-                    }
-                    className="mr-2"
-                />
-                <label className="font-medium text-gray-700">Можно изменять?</label>
-            </div>
         </div>
-        <CreateCoordinatesModal isModalOpen={ isCoordinatesModalOpen } closeModal={
+        <CreateCoordinatesModal isModalOpen={isCoordinatesModalOpen} closeModal={
             () => {
                 setIsCoordinatesModalOpen(false);
                 refetchCoordinates();
             }
         } isEditable={false}/>
-        <CreatePersonModal isModalOpen={ isPersonModalOpen }
-                           closeModal={ () => {
+        <CreatePersonModal isModalOpen={isPersonModalOpen}
+                           closeModal={() => {
                                setIsPersonModalOpen(false);
                                refetchPersons()
-                           } }/>
+                           }}/>
     </Modal>
 
 }

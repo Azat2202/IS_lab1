@@ -9,10 +9,11 @@ import {
 
 interface CreateObjectModalInput {
     isModalOpen: boolean,
-    closeModal: () => void
+    closeModal: () => void,
+    isEditable: boolean,
 }
 
-export function CreateCoordinatesModal({ isModalOpen, closeModal }: CreateObjectModalInput) {
+export function CreateCoordinatesModal({ isModalOpen, closeModal, isEditable }: CreateObjectModalInput) {
     const [ createCoordinates, { isLoading, isSuccess, isError, data, error } ] = useCreateCoordinatesMutation();
     const [ formData, setFormData ] = useState<CoordinatesRequest>({
         x: 0,

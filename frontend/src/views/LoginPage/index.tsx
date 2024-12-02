@@ -2,12 +2,12 @@ import { useAuthenticateMutation } from "../../store/types.generated";
 import React, { useState } from "react";
 import { Routes, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setToken } from "../../store/authSlice";
+import { setToken, setLogin} from "../../store/authSlice";
 import { RootState } from "../../store/store";
 
 export function LoginPage() {
   const [ username, setUsername ] = useState('');
-  const [ password, setPassword ] = useState('');
+  const [ password, setLocalPassword ] = useState('');
   const [ authenticate, { isLoading, isSuccess, isError, data, error } ] = useAuthenticateMutation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -16,6 +16,7 @@ export function LoginPage() {
       const jwtDto = { username, password };
       const response = await authenticate({ jwtDto }).unwrap();
       dispatch(setToken(response.token!!));
+      dispatch(setLogin(username));
       navigate("/main");
     } catch ( err ) {
       console.error('Login failed:', err);
@@ -43,7 +44,7 @@ export function LoginPage() {
                  className="w-32 placeholder:text-black"
           />
           <input type={ "password" } placeholder={ "А. Н." } value={ password }
-                 onChange={ e => setPassword(e.target.value) }
+                 onChange={ e => setLocalPassword(e.target.value) }
                  className="w-10 placeholder:text-black"
           />
           <br/>
