@@ -61,7 +61,6 @@ export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, grou
     };
     return <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel}>
         <div className="space-y-2 bg-white">
-            <button onClick={() => setFormData({...group})}>подцепить изменения</button>
             <div className="flex items-center space-x-4">
                 <label className="w-1/3 font-medium text-gray-700">Имя группы</label>
                 <input

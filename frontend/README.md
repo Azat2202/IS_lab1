@@ -5,11 +5,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 todo 
 
 - [ ] регистрация
-- [ ] обновление
-- [ ] удаление
+- [x] обновление
+- [x] удаление
 - [ ] фильтрация + сортировка
 - [ ] команды
 - [ ] админпанель
+- [ ] переодическое обновление
+- [ ] валидация
 
 ## Available Scripts
 

@@ -1,5 +1,5 @@
 {
-  "schemaFile": "https://azat2202.github.io/IS_lab1/open-api.json",
+  "schemaFile": "../backend/open-api.json",
   "apiFile": "./src/store/baseApi.ts",
   "apiImport": "api",
   "outputFile": "./src/store/types.generated.ts",

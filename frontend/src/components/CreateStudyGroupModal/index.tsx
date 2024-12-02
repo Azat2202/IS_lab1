@@ -28,7 +28,7 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
         semester: "FIRST",
         shouldBeExpelled: 5,
         groupAdminId: 1,
-        isEditable: false,
+        isEditable: true,
     });
     const [createStudyGroup, { isLoading, isSuccess, isError, data, error }] = useCreateStudyGroupMutation();
     const { data: persons, refetch: refetchPersons } = useGetAllPersonsQuery();

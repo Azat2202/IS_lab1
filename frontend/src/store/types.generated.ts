@@ -300,30 +300,31 @@ export type StudyGroupResponse = {
   semesterEnum?: "FIRST" | "SECOND" | "SEVENTH" | "EIGHTH";
   groupAdmin?: Person;
   user?: UserResponse;
+  isEditable?: boolean;
 };
 export type SortObject = {
-  sorted?: boolean;
   empty?: boolean;
   unsorted?: boolean;
+  sorted?: boolean;
 };
 export type PageableObject = {
-  paged?: boolean;
-  pageNumber?: number;
-  pageSize?: number;
   offset?: number;
   sort?: SortObject;
   unpaged?: boolean;
+  paged?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
 };
 export type PageStudyGroupResponse = {
   totalPages?: number;
   totalElements?: number;
-  pageable?: PageableObject;
   first?: boolean;
   last?: boolean;
   size?: number;
   content?: StudyGroupResponse[];
   number?: number;
   sort?: SortObject;
+  pageable?: PageableObject;
   numberOfElements?: number;
   empty?: boolean;
 };

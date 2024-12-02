@@ -1,39 +1,39 @@
 import {useDispatch, useSelector} from "react-redux";
-import {UpdateStudyGroupRequest, useAuthenticateMutation, useGetAllStudyGroupsQuery} from "../../store/types.generated";
-import React, {useState} from "react";
+import {
+    UpdateStudyGroupRequest,
+    useAuthenticateMutation,
+    useDeleteStudyGroupMutation,
+    useGetAllStudyGroupsQuery
+} from "../../store/types.generated";
+import React, {useRef, useState} from "react";
 import {CreateStudyGroupModal} from "../CreateStudyGroupModal";
-import {CreateCoordinatesModal} from "../CreateCoordinatesModal";
-import {GetInformationById} from "../GetInformationById";
 import {RootState} from "../../store/store";
 import toast from "react-hot-toast";
 import {UpdateStudyGroupModal} from "../UpdateStudyGroupModal";
+import {ShowStudyGroupModal} from "../ShowStudyGroupModal";
 
 
 export function MainTable() {
     const [hoveredCell, setHoveredCell] = useState<{ row: number; col: string } | null>(null);
     const [isStudyGroupModalOpen, setIsStudyGroupModalOpen] = useState(false);
     const [isUpdateStudyGroupModalOpen, setIsUpdateStudyGroupModalOpen] = useState(false);
-    const [isGetInformationModalOpen, setIsGetInformationModalOpen] = useState(false);
-    const [isModal, setModal] = useState<boolean>(false);
+    const [showStudyGroupModalOpen, setIsShowStudyGroupModalOpen] = useState(false);
     const userLogin = useSelector((state: RootState) => state.auth.login);
     const [page, setPage] = useState(0);
+    const filterRef = useRef<HTMLInputElement>(null);
+    const [groupName, setGroupName] = useState("");
+    const [sortBy, setSortBy] = useState("");
+    const [sortDirection, setSortDirection] = useState("asc");
 
     const dispatch = useDispatch();
     const {data, error, isLoading, isSuccess, isError, refetch: refetchCollection} = useGetAllStudyGroupsQuery({
-        page
+        page,
+        groupName,
+        sortBy,
+        sortDirection
     });
-    const [updateGroup, setUpdateGroup] = useState<UpdateStudyGroupRequest>({
-        id: data?.content?.[0].id ?? 0,
-        name: data?.content?.[0].name ?? "",
-        coordinatesId: data?.content?.[0]?.coordinates?.id ?? 0,
-        studentsCount: data?.content?.[0].studentsCount ?? 0,
-        expelledStudents: data?.content?.[0].expelledStudents ?? 0,
-        transferredStudents: data?.content?.[0].transferredStudents ?? 0,
-        formOfEducation: data?.content?.[0].formOfEducation ?? "FULL_TIME_EDUCATION",
-        semester: data?.content?.[0].semesterEnum ?? "FIRST",
-        shouldBeExpelled: data?.content?.[0].shouldBeExpelled,
-        groupAdminId: data?.content?.[0]?.groupAdmin?.id ?? 0,
-    });
+    const [updateGroup, setUpdateGroup] = useState<UpdateStudyGroupRequest>();
+    const [deleteStudyGroup] = useDeleteStudyGroupMutation();
     if (isLoading) {
         return <div>Loading...</div>;
 
@@ -41,7 +41,6 @@ export function MainTable() {
     if (isError) {
         return <div>Error</div>;
     }
-
 
     if (isSuccess && data) {
         return (
@@ -54,7 +53,8 @@ export function MainTable() {
                     <li>Необходимо, чтобы с помощью системы можно было выполнить следующие операции с объектами:
                         <button onClick={() => setIsStudyGroupModalOpen(true)}
                                 className="underline text-blue-800"> создание нового объекта</button>,
-                        получение информации об объекте по ИД,
+                        <button onClick={() => setIsShowStudyGroupModalOpen(true)}
+                                className="underline text-blue-800"> получение информации об объекте по ИД</button>,
                         обновление объекта
                         (модификация его атрибутов), удаление
                         объекта. Операции должны осуществляться в отдельных окнах (интерфейсах) приложения.При получении
@@ -67,7 +67,53 @@ export function MainTable() {
                         все объекты не
                         помещаются на одном экране).
                     </li>
-                    <li>Нужно обеспечить возможность фильтровать/сортировать строки таблицы, которые показывают объекты
+                    <li>Нужно обеспечить возможность фильтровать
+                        (<input type={"text"}
+                                onChange={e => {
+                                    setGroupName(e.target.value)
+                                    refetchCollection()
+                                        .then(() => filterRef.current ? filterRef.current.focus() : {})
+                                }
+                                }
+                                value={groupName}
+                                name={"groupName"}
+                                placeholder={"Имя группы"}
+                                className="border border-black"
+                                ref={filterRef}
+                        />)
+                        сортировать строки таблицы
+                        (<select
+                            name="sortBy"
+                            value={sortBy}
+                            onChange={(e) => {
+                                setSortBy(e.target.value);
+                            }}
+                            className="border border-black"
+                        >
+                            <option value="id">ID</option>
+                            <option value="name">Имя</option>
+                            <option value="coordinates">Координаы</option>
+                            <option value="studentsCount">Количество студентов</option>
+                            <option value="expelledStudents">Отличсленные студенты</option>
+                            <option value="transferredStudents">Переведенные студенты</option>
+                            <option value="formOfEducation">Форма обучения</option>
+                            <option value="shouldBeExpelled">На отчисление</option>
+                            <option value="semester">Семестр</option>
+                            <option value="groupAdmin">Админ</option>
+                        </select>)
+                        (<select
+                            name="direction"
+                            value={sortDirection}
+                            onChange={(e) => {
+                                setSortDirection(e.target.value);
+                            }}
+                            className="border border-black"
+                        >
+                            <option value="asc">По возрастанию</option>
+                            <option value="desc">По убыванию</option>
+                        </select>)
+
+                        которые показывают объекты
                         (по
                         значениям любой из строковых колонок). Фильтрация элементов должна производиться по неполному
                         совпадению.
@@ -93,6 +139,7 @@ export function MainTable() {
                         <th className="border border-black p-2">Админ</th>
                         <th className="border border-black p-2">Владелец объекта</th>
                         <th className="border border-black p-2">Обновить</th>
+                        <th className="border border-black p-2">Удалить</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -131,7 +178,7 @@ export function MainTable() {
                                 )}
                             </td>
                             <td className="border border-black p-1 text-center">{group.user ? group.user.username : 'N/A'}</td>
-                            <td className="border border-black p-1 text-center">{group.user?.username == userLogin ?
+                            <td className="border border-black p-1 text-center">{group.user?.username == userLogin && group.isEditable ?
                                 <button onClick={() => {
                                     setUpdateGroup({
                                         id: group.id!!,
@@ -148,20 +195,29 @@ export function MainTable() {
                                     setIsUpdateStudyGroupModalOpen(true)
                                 }} className="underline text-blue-800">Обновить</button> :
                                 ""} </td>
+                            <td className="border border-black p-1 text-center">{group.user?.username == userLogin && group.id ?
+                                <button onClick={() => {
+                                    deleteStudyGroup({id: group.id ?? 0})
+                                        .then(() => {
+                                            refetchCollection();
+                                        })
+                                }} className="underline text-blue-800">Удалить</button> : ""
+                            }</td>
                         </tr>
                     ))}
                     </tbody>
                     <tfoot>
-                    <tr>
+                    {!data.first &&
                         <button onClick={() => setPage(page - 1)}
-                                disabled={page <= 0}
                                 className="m-1 p-1 w-6 border-2 font-bold border-black rounded transition hover:bg-gray-200"
                         >{"<"}</button>
+                    }
+                    {!data.last &&
                         <button onClick={() => setPage(page + 1)}
                                 disabled={page >= (data?.totalPages ? data?.totalPages : 0) - 1}
                                 className="m-1 p-1 w-6 border-2 font-bold border-black rounded transition hover:bg-gray-200"
                         >{">"}</button>
-                    </tr>
+                    }
                     </tfoot>
                 </table>
                 <CreateStudyGroupModal
@@ -172,7 +228,7 @@ export function MainTable() {
                     isModalOpen={isStudyGroupModalOpen}
                     isEditable={false}
                 />
-                {isUpdateStudyGroupModalOpen && <UpdateStudyGroupModal
+                {(isUpdateStudyGroupModalOpen && updateGroup) && <UpdateStudyGroupModal
                     group={updateGroup}
                     closeModal={() => {
                         setIsUpdateStudyGroupModalOpen(false);
@@ -181,12 +237,10 @@ export function MainTable() {
                     isModalOpen={isUpdateStudyGroupModalOpen}
                     isEditable={false}
                 />}
-
-                <GetInformationById
-                    isModalOpen={isGetInformationModalOpen}
-                    closeModal={() => {
-                    }}
-                />
+                {showStudyGroupModalOpen &&
+                    <ShowStudyGroupModal isModalOpen={showStudyGroupModalOpen} closeModal={() => {
+                        setIsShowStudyGroupModalOpen(false)
+                    }}/>}
             </div>
         );
     }
