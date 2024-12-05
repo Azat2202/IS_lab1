@@ -27,11 +27,12 @@ public class StudyGroupResponse {
 
     private Integer shouldBeExpelled;
 
-    private Semester semesterEnum;
+    private Semester semester;
 
     private Person groupAdmin;
 
     private UserResponse user;
 
+    private Boolean isEditable;
 }
 

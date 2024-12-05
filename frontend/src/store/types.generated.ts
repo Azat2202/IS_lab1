@@ -52,8 +52,17 @@ const injectedRtkApi = api.injectEndpoints({
       ApproveAdminProposalApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/admin/proposal/${queryArg.userId}`,
+        url: `/api/admin/proposal/${queryArg.proposalId}`,
         method: "PUT",
+      }),
+    }),
+    declineAdminProposal: build.mutation<
+      DeclineAdminProposalApiResponse,
+      DeclineAdminProposalApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/admin/proposal/${queryArg.proposalId}`,
+        method: "DELETE",
       }),
     }),
     becomeAdmin: build.mutation<BecomeAdminApiResponse, BecomeAdminApiArg>({
@@ -121,9 +130,9 @@ const injectedRtkApi = api.injectEndpoints({
     minGroupAdmin: build.query<MinGroupAdminApiResponse, MinGroupAdminApiArg>({
       query: () => ({ url: `/api/command/min_group_admin` }),
     }),
-    minGroupAdmin1: build.query<
-      MinGroupAdmin1ApiResponse,
-      MinGroupAdmin1ApiArg
+    countGroupAdmin: build.query<
+      CountGroupAdminApiResponse,
+      CountGroupAdminApiArg
     >({
       query: (queryArg) => ({
         url: `/api/command/count_group_admin`,
@@ -199,7 +208,11 @@ export type CreateStudyGroupApiArg = {
 };
 export type ApproveAdminProposalApiResponse = /** status 200 OK */ UserResponse;
 export type ApproveAdminProposalApiArg = {
-  userId: number;
+  proposalId: number;
+};
+export type DeclineAdminProposalApiResponse = unknown;
+export type DeclineAdminProposalApiArg = {
+  proposalId: number;
 };
 export type BecomeAdminApiResponse = /** status 200 OK */ AdminProposalResponse;
 export type BecomeAdminApiArg = void;
@@ -236,8 +249,8 @@ export type MeApiResponse = /** status 200 OK */ UserResponse;
 export type MeApiArg = void;
 export type MinGroupAdminApiResponse = /** status 200 OK */ StudyGroupResponse;
 export type MinGroupAdminApiArg = void;
-export type MinGroupAdmin1ApiResponse = /** status 200 OK */ number;
-export type MinGroupAdmin1ApiArg = {
+export type CountGroupAdminApiResponse = /** status 200 OK */ number;
+export type CountGroupAdminApiArg = {
   groupAdminId: number;
 };
 export type GetExpelledCountApiResponse = /** status 200 OK */ number;
@@ -297,7 +310,7 @@ export type StudyGroupResponse = {
     | "FULL_TIME_EDUCATION"
     | "EVENING_CLASSES";
   shouldBeExpelled?: number;
-  semesterEnum?: "FIRST" | "SECOND" | "SEVENTH" | "EIGHTH";
+  semester?: "FIRST" | "SECOND" | "SEVENTH" | "EIGHTH";
   groupAdmin?: Person;
   user?: UserResponse;
   isEditable?: boolean;
@@ -316,16 +329,16 @@ export type PageableObject = {
   pageSize?: number;
 };
 export type PageStudyGroupResponse = {
-  totalPages?: number;
   totalElements?: number;
+  totalPages?: number;
   first?: boolean;
   last?: boolean;
   size?: number;
   content?: StudyGroupResponse[];
   number?: number;
   sort?: SortObject;
-  pageable?: PageableObject;
   numberOfElements?: number;
+  pageable?: PageableObject;
   empty?: boolean;
 };
 export type UpdateStudyGroupRequest = {
@@ -422,6 +435,7 @@ export const {
   useUpdateStudyGroupMutation,
   useCreateStudyGroupMutation,
   useApproveAdminProposalMutation,
+  useDeclineAdminProposalMutation,
   useBecomeAdminMutation,
   useGetAllPersonsQuery,
   useCreatePersonMutation,
@@ -433,7 +447,7 @@ export const {
   useAuthenticateMutation,
   useMeQuery,
   useMinGroupAdminQuery,
-  useMinGroupAdmin1Query,
+  useCountGroupAdminQuery,
   useGetExpelledCountQuery,
   useGetStudyGroupsQuery,
   useDeleteStudyGroupMutation,

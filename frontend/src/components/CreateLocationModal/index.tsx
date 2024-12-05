@@ -28,8 +28,11 @@ export function CreateLocationModal({ isModalOpen, closeModal }: { isModalOpen: 
         });
     };
 
+    const formValid :boolean =
+        formData.name.trim().length > 0
+
     return (
-        <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel}>
+        <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel} okDisabled={!formValid}>
             <div className="space-y-2 bg-white m-2 p-4">
 
                 <div className="flex items-center space-x-4">

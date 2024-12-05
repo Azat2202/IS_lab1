@@ -27,7 +27,7 @@ public class CommandsController {
     }
 
     @GetMapping("/count_group_admin")
-    public Long minGroupAdmin(@RequestParam Long groupAdminId) {
+    public Long count_group_admin(@RequestParam Long groupAdminId) {
         return commandsService.getCountByGroupAdmin(groupAdminId);
     }
 

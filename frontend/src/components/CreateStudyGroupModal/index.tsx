@@ -58,7 +58,16 @@ export function CreateStudyGroupModal({ isModalOpen, closeModal, isEditable }: C
                 : value,
         });
     };
-    return <Modal isOpen={ isModalOpen } onOk={ handleOk } onClose={ handleCancel }>
+
+    const formValid: boolean =
+        formData.name.trim().length > 0 &&
+        formData.studentsCount > 0 &&
+        formData.expelledStudents > 0 &&
+        formData.transferredStudents > 0 &&
+        (formData?.shouldBeExpelled ?? 1) > 0
+
+
+    return <Modal isOpen={ isModalOpen } onOk={ handleOk } onClose={ handleCancel } okDisabled={!formValid}>
         <div className="space-y-2 bg-white">
             <div className="flex items-center space-x-4">
                 <label className="w-1/3 font-medium text-gray-700">Имя группы</label>

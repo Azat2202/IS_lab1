@@ -52,4 +52,8 @@ public class AdminProposalService {
         return userResponse;
     }
 
+    public void declineAdmin(Long proposalId){
+        adminProposalRepository.deleteById(proposalId);
+    }
+
 }

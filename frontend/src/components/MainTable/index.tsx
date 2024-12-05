@@ -3,9 +3,9 @@ import {
     UpdateStudyGroupRequest,
     useAuthenticateMutation,
     useDeleteStudyGroupMutation,
-    useGetAllStudyGroupsQuery
+    useGetAllStudyGroupsQuery, useMeQuery
 } from "../../store/types.generated";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {CreateStudyGroupModal} from "../CreateStudyGroupModal";
 import {RootState} from "../../store/store";
 import toast from "react-hot-toast";
@@ -26,6 +26,7 @@ export function MainTable() {
     const [sortDirection, setSortDirection] = useState("asc");
 
     const dispatch = useDispatch();
+    const {data: user} = useMeQuery()
     const {data, error, isLoading, isSuccess, isError, refetch: refetchCollection} = useGetAllStudyGroupsQuery({
         page,
         groupName,
@@ -34,6 +35,10 @@ export function MainTable() {
     });
     const [updateGroup, setUpdateGroup] = useState<UpdateStudyGroupRequest>();
     const [deleteStudyGroup] = useDeleteStudyGroupMutation();
+    useEffect(() => {
+        const intervalId = setInterval(refetchCollection, 1000)
+        return () => clearInterval(intervalId)
+    }, [refetchCollection])
     if (isLoading) {
         return <div>Loading...</div>;
 
@@ -45,84 +50,89 @@ export function MainTable() {
     if (isSuccess && data) {
         return (
             <div className="pl-10 p-4">
-                <h1 className="text-3xl font-bold">Введение</h1>
-                <ul className="list-disc">
-                    <li>Основное назначение информационной системы - управление объектами, созданными на основе
-                        заданного в варианте класса.
-                    </li>
-                    <li>Необходимо, чтобы с помощью системы можно было выполнить следующие операции с объектами:
-                        <button onClick={() => setIsStudyGroupModalOpen(true)}
-                                className="underline text-blue-800"> создание нового объекта</button>,
-                        <button onClick={() => setIsShowStudyGroupModalOpen(true)}
-                                className="underline text-blue-800"> получение информации об объекте по ИД</button>,
-                        обновление объекта
-                        (модификация его атрибутов), удаление
-                        объекта. Операции должны осуществляться в отдельных окнах (интерфейсах) приложения.При получении
-                        информации
-                        об объекте класса должна также выводиться информация о связанных с ним объектах.
-                    </li>
-                    <li>На главном экране системы должен выводиться список текущих объетов в виде таблицы (каждый
-                        атрибут объекта
-                        - отдельная колонка в таблице). При отображении таблицы должна использоваться пагинация (если
-                        все объекты не
-                        помещаются на одном экране).
-                    </li>
-                    <li>Нужно обеспечить возможность фильтровать
-                        (<input type={"text"}
-                                onChange={e => {
-                                    setGroupName(e.target.value)
-                                    refetchCollection()
-                                        .then(() => filterRef.current ? filterRef.current.focus() : {})
-                                }
-                                }
-                                value={groupName}
-                                name={"groupName"}
-                                placeholder={"Имя группы"}
+                <div className="text-xl">
+                    <h1 className="text-3xl font-bold">Введение</h1>
+                    <ul className="list-disc">
+                        <li>Основное назначение информационной системы - управление объектами, созданными на основе
+                            заданного в варианте класса.
+                        </li>
+                        <li>Необходимо, чтобы с помощью системы можно было выполнить следующие операции с объектами:
+                            <button onClick={() => setIsStudyGroupModalOpen(true)}
+                                    className="underline text-blue-800"> создание нового объекта</button>,
+                            <button onClick={() => setIsShowStudyGroupModalOpen(true)}
+                                    className="underline text-blue-800"> получение информации об объекте по ИД</button>,
+                            обновление объекта
+                            (модификация его атрибутов), удаление
+                            объекта. Операции должны осуществляться в отдельных окнах (интерфейсах) приложения.При
+                            получении
+                            информации
+                            об объекте класса должна также выводиться информация о связанных с ним объектах.
+                        </li>
+                        <li>На главном экране системы должен выводиться список текущих объетов в виде таблицы (каждый
+                            атрибут объекта
+                            - отдельная колонка в таблице). При отображении таблицы должна использоваться пагинация
+                            (если
+                            все объекты не
+                            помещаются на одном экране).
+                        </li>
+                        <li>Нужно обеспечить возможность фильтровать
+                            (<input type={"text"}
+                                    onChange={e => {
+                                        setGroupName(e.target.value)
+                                        refetchCollection()
+                                            .then(() => filterRef.current ? filterRef.current.focus() : {})
+                                    }
+                                    }
+                                    value={groupName}
+                                    name={"groupName"}
+                                    placeholder={"Имя группы"}
+                                    className="border border-black"
+                                    ref={filterRef}
+                            />)
+                            сортировать строки таблицы
+                            (<select
+                                name="sortBy"
+                                value={sortBy}
+                                onChange={(e) => {
+                                    setSortBy(e.target.value);
+                                }}
                                 className="border border-black"
-                                ref={filterRef}
-                        />)
-                        сортировать строки таблицы
-                        (<select
-                            name="sortBy"
-                            value={sortBy}
-                            onChange={(e) => {
-                                setSortBy(e.target.value);
-                            }}
-                            className="border border-black"
-                        >
-                            <option value="id">ID</option>
-                            <option value="name">Имя</option>
-                            <option value="coordinates">Координаы</option>
-                            <option value="studentsCount">Количество студентов</option>
-                            <option value="expelledStudents">Отличсленные студенты</option>
-                            <option value="transferredStudents">Переведенные студенты</option>
-                            <option value="formOfEducation">Форма обучения</option>
-                            <option value="shouldBeExpelled">На отчисление</option>
-                            <option value="semester">Семестр</option>
-                            <option value="groupAdmin">Админ</option>
-                        </select>)
-                        (<select
-                            name="direction"
-                            value={sortDirection}
-                            onChange={(e) => {
-                                setSortDirection(e.target.value);
-                            }}
-                            className="border border-black"
-                        >
-                            <option value="asc">По возрастанию</option>
-                            <option value="desc">По убыванию</option>
-                        </select>)
+                            >
+                                <option value="id">ID</option>
+                                <option value="name">Имя</option>
+                                <option value="coordinates">Координаы</option>
+                                <option value="studentsCount">Количество студентов</option>
+                                <option value="expelledStudents">Отличсленные студенты</option>
+                                <option value="transferredStudents">Переведенные студенты</option>
+                                <option value="formOfEducation">Форма обучения</option>
+                                <option value="shouldBeExpelled">На отчисление</option>
+                                <option value="semester">Семестр</option>
+                                <option value="groupAdmin">Админ</option>
+                            </select>)
+                            (<select
+                                name="direction"
+                                value={sortDirection}
+                                onChange={(e) => {
+                                    setSortDirection(e.target.value);
+                                }}
+                                className="border border-black"
+                            >
+                                <option value="asc">По возрастанию</option>
+                                <option value="desc">По убыванию</option>
+                            </select>)
 
-                        которые показывают объекты
-                        (по
-                        значениям любой из строковых колонок). Фильтрация элементов должна производиться по неполному
-                        совпадению.
-                    </li>
-                    <li>Переход к обновлению (модификации) объекта должен быть возможен из таблицы с общим списком
-                        объектов и из
-                        области с визуализацией объекта (при ее реализации).
-                    </li>
-                </ul>
+                            которые показывают объекты
+                            (по
+                            значениям любой из строковых колонок). Фильтрация элементов должна производиться по
+                            неполному
+                            совпадению.
+                        </li>
+                        <li>Переход к обновлению (модификации) объекта должен быть возможен из таблицы с общим списком
+                            объектов и из
+                            области с визуализацией объекта (при ее реализации).
+                        </li>
+                    </ul>
+                </div>
                 <table className="table-auto border-collapse border-2 border-black m-2">
                     <thead className="text-center">
                     <tr>
@@ -156,7 +166,7 @@ export function MainTable() {
                             <td className="border border-black p-1 text-center">{group.transferredStudents}</td>
                             <td className="border border-black p-1 text-center">{group.formOfEducation}</td>
                             <td className="border border-black p-1 text-center">{group.shouldBeExpelled}</td>
-                            <td className="border border-black p-1 text-center">{group.semesterEnum}</td>
+                            <td className="border border-black p-1 text-center">{group.semester}</td>
                             <td className="border border-black p-1 text-center relative"
                                 onMouseEnter={() => setHoveredCell({row: index, col: 'id'})}
                                 onMouseLeave={() => setHoveredCell(null)}
@@ -178,7 +188,9 @@ export function MainTable() {
                                 )}
                             </td>
                             <td className="border border-black p-1 text-center">{group.user ? group.user.username : 'N/A'}</td>
-                            <td className="border border-black p-1 text-center">{group.user?.username == userLogin && group.isEditable ?
+                            <td className="border border-black p-1 text-center">{(
+                                user?.role == "ADMIN" || group.user?.username == userLogin)
+                            && group.isEditable ?
                                 <button onClick={() => {
                                     setUpdateGroup({
                                         id: group.id!!,
@@ -188,14 +200,16 @@ export function MainTable() {
                                         expelledStudents: group.expelledStudents ?? 0,
                                         transferredStudents: group.transferredStudents ?? 0,
                                         formOfEducation: group.formOfEducation ?? "FULL_TIME_EDUCATION",
-                                        semester: group.semesterEnum ?? "FIRST",
+                                        semester: group.semester ?? "FIRST",
                                         shouldBeExpelled: group.shouldBeExpelled,
                                         groupAdminId: group.groupAdmin?.id,
                                     })
                                     setIsUpdateStudyGroupModalOpen(true)
                                 }} className="underline text-blue-800">Обновить</button> :
                                 ""} </td>
-                            <td className="border border-black p-1 text-center">{group.user?.username == userLogin && group.id ?
+                            <td className="border border-black p-1 text-center">{(
+                                user?.role == "ADMIN" || group.user?.username == userLogin)
+                            && group.id ?
                                 <button onClick={() => {
                                     deleteStudyGroup({id: group.id ?? 0})
                                         .then(() => {

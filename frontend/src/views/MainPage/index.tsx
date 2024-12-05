@@ -2,6 +2,8 @@ import { WordPage } from "../../containers/WordPage";
 import { useRef } from "react";
 import { MainTable } from "../../components/MainTable";
 import { TableOfContents } from "../../components/TableOfContents";
+import {CommandsPage} from "../../components/Commands";
+import {AdminPanel} from "../../components/AdminPanel";
 
 export function MainPage() {
   const mainTable = useRef(null);
@@ -13,17 +15,17 @@ export function MainPage() {
     <div className="h-screen snap-y snap-mandatory overflow-y-scroll">
       <TableOfContents pages={[
         {name: "Таблица", page: mainTable},
-        {name: "", page: page2Ref},
-        {name: "", page: page3Ref},
+        {name: "Основные команды", page: page2Ref},
+        {name: "Админ панель", page: page3Ref},
       ]} />
       <div className="snap-start">
         <WordPage refProp={ mainTable }><MainTable/></WordPage>
       </div>
       <div className="snap-start">
-        <WordPage refProp={ page2Ref }>WordPage 2 Content</WordPage>
+        <WordPage refProp={ page2Ref }><CommandsPage/></WordPage>
       </div>
       <div className="snap-start">
-        <WordPage refProp={ page3Ref }>WordPage 3 Content</WordPage>
+        <WordPage refProp={ page3Ref }><AdminPanel/></WordPage>
       </div>
     </div>
   </>

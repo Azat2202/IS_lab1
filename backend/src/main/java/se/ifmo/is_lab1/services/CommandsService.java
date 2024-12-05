@@ -29,7 +29,7 @@ public class CommandsService {
         List<StudyGroup> allObjects = studyGroupRepository.findAll();
         StudyGroup toDelete = allObjects.stream()
                 .filter(s -> s.getUser().getId().equals(user.getId()))
-                .filter(s -> s.getExpelledStudents().equals(shouldBeExpelled))
+                .filter(s -> s.getShouldBeExpelled().equals(shouldBeExpelled))
                 .findFirst()
                 .orElseThrow(StudyGroupNotFoundException::new);
         return studyGroupService.deleteStudyGroup(toDelete.getId());

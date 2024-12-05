@@ -2,11 +2,7 @@ package se.ifmo.is_lab1.controllers;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import se.ifmo.is_lab1.messages.adminPanel.AdminProposalResponse;
 import se.ifmo.is_lab1.messages.authentication.UserResponse;
 import se.ifmo.is_lab1.services.AdminProposalService;
@@ -25,8 +21,15 @@ public class AdminController {
         return adminProposalService.getAllAdminProposals();
     }
 
-    @PutMapping("/proposal/{userId}")
-    public UserResponse approveAdminProposal(@PathVariable("userId") Long userId) {
-        return adminProposalService.approveAdmin(userId);
+    @PutMapping("/proposal/{proposalId}")
+    public UserResponse approveAdminProposal(@PathVariable("proposalId") Long proposalId) {
+        return adminProposalService.approveAdmin(proposalId);
     }
+
+    @DeleteMapping("/proposal/{proposalId}")
+    public void declineAdminProposal(@PathVariable("proposalId") Long proposalId) {
+        adminProposalService.declineAdmin(proposalId);
+    }
+
+
 }

@@ -71,14 +71,14 @@ public class StudyGroupService {
         StudyGroup existingStudyGroup = studyGroupRepository.findById(studyGroupRequest.getId())
                 .orElseThrow(StudyGroupNotFoundException::new);
 
-        if (!(existingStudyGroup.getIsEditable() && user.getRole().equals(Role.ADMIN)) ||
-                !existingStudyGroup
-                        .getUser()
-                        .getId()
-                        .equals(user.getId())) {
+        if (!existingStudyGroup.getIsEditable() ||
+                (!user.getRole().equals(Role.ADMIN) &&
+                        !existingStudyGroup
+                                .getUser()
+                                .getId()
+                                .equals(user.getId()))) {
             throw new ObjectDontBelongToUserException();
         }
-        modelMapper.map(studyGroupRequest, existingStudyGroup);
         existingStudyGroup.setCoordinates(
                 coordinatesRepository.findById(studyGroupRequest.getCoordinatesId())
                         .orElseThrow(CoordinatesNotFoundException::new)
@@ -89,6 +89,13 @@ public class StudyGroupService {
                             .orElseThrow(PersonNotFoundException::new)
             );
         }
+        existingStudyGroup.setName(studyGroupRequest.getName());
+        existingStudyGroup.setStudentsCount(studyGroupRequest.getStudentsCount());
+        existingStudyGroup.setExpelledStudents(studyGroupRequest.getExpelledStudents());
+        existingStudyGroup.setTransferredStudents(studyGroupRequest.getTransferredStudents());
+        existingStudyGroup.setFormOfEducation(studyGroupRequest.getFormOfEducation());
+        existingStudyGroup.setShouldBeExpelled(studyGroupRequest.getShouldBeExpelled());
+        existingStudyGroup.setSemester(studyGroupRequest.getSemester());
         StudyGroup response = studyGroupRepository.save(existingStudyGroup);
         return modelMapper.map(response, StudyGroupResponse.class);
     }
@@ -96,7 +103,8 @@ public class StudyGroupService {
     @Transactional
     public StudyGroupResponse deleteStudyGroup(Integer objectId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!studyGroupRepository.findById(objectId)
+        if (!user.getRole().equals(Role.ADMIN)  &&
+                !studyGroupRepository.findById(objectId)
                 .orElseThrow(StudyGroupNotFoundException::new)
                 .getUser()
                 .getId()

@@ -38,8 +38,12 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
         });
     };
 
+    const formValid: boolean =
+        formData.name.trim().length > 0 &&
+        formData.weight > 0
+
     return (
-        <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel}>
+        <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel} okDisabled={!formValid}>
             <div className="space-y-2 bg-white m-2 p-4">
                 <div className="flex items-center space-x-4">
                     <label className="w-1/3 font-medium text-gray-700">Имя</label>
