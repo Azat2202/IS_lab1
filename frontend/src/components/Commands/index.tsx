@@ -11,7 +11,7 @@ import {ShowStudyGroupModalWithData} from "../ShowStudyGroupModal";
 export function CommandsPage() {
     const [shouldBeExpelled, setShouldBeExpelled] = useState(0);
     const [showStudyGroupModalOpen, setShowStudyGroupModalOpen] = useState(false);
-    const [countGroupAdminId, setCountGroupAdminId] = useState(1);
+    const [countGroupAdminId, setCountGroupAdminId] = useState<number | undefined>(undefined);
     const [expellGroupid, setExpellGroupId] = useState(1);
 
     const [deleteByShouldBeExpelled] = useDeleteByExpelledMutation();
@@ -74,8 +74,10 @@ export function CommandsPage() {
                 <select
                     name="Админ"
                     value={countGroupAdminId}
-                    onChange={e => {
-                        setCountGroupAdminId(+e.target.value);
+                    onChange={e =>
+                    {
+                        setCountGroupAdminId(e.target.value !== "Undefined" ? parseInt(e.target.value) : undefined)
+                        refetchCountByGroupAdmin();
                     }}
                     className="border border-black"
                 >
@@ -89,7 +91,11 @@ export function CommandsPage() {
                         ) : (
                             <option disabled>No persons available</option>
                         )
+
                     }
+                    <option value={undefined}>
+                        Undefined
+                    </option>
                 </select>
             </li>
             <li>

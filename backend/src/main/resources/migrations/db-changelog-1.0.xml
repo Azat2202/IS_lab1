@@ -76,7 +76,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="group_admin_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_study_group_person" references="person(id)"/>
+                <constraints nullable="true" foreignKeyName="fk_study_group_person" references="person(id)"/>
             </column>
         </createTable>
     </changeSet>

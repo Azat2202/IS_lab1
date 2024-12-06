@@ -251,7 +251,7 @@ export type MinGroupAdminApiResponse = /** status 200 OK */ StudyGroupResponse;
 export type MinGroupAdminApiArg = void;
 export type CountGroupAdminApiResponse = /** status 200 OK */ number;
 export type CountGroupAdminApiArg = {
-  groupAdminId: number;
+  groupAdminId?: number;
 };
 export type GetExpelledCountApiResponse = /** status 200 OK */ number;
 export type GetExpelledCountApiArg = void;
@@ -316,29 +316,29 @@ export type StudyGroupResponse = {
   isEditable?: boolean;
 };
 export type SortObject = {
-  empty?: boolean;
-  unsorted?: boolean;
   sorted?: boolean;
+  unsorted?: boolean;
+  empty?: boolean;
 };
 export type PageableObject = {
-  offset?: number;
-  sort?: SortObject;
-  unpaged?: boolean;
   paged?: boolean;
   pageNumber?: number;
   pageSize?: number;
+  unpaged?: boolean;
+  offset?: number;
+  sort?: SortObject;
 };
 export type PageStudyGroupResponse = {
-  totalElements?: number;
   totalPages?: number;
+  totalElements?: number;
   first?: boolean;
   last?: boolean;
+  pageable?: PageableObject;
+  numberOfElements?: number;
   size?: number;
   content?: StudyGroupResponse[];
   number?: number;
   sort?: SortObject;
-  numberOfElements?: number;
-  pageable?: PageableObject;
   empty?: boolean;
 };
 export type UpdateStudyGroupRequest = {

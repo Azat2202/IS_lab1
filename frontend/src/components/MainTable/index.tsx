@@ -36,7 +36,7 @@ export function MainTable() {
     const [updateGroup, setUpdateGroup] = useState<UpdateStudyGroupRequest>();
     const [deleteStudyGroup] = useDeleteStudyGroupMutation();
     useEffect(() => {
-        const intervalId = setInterval(refetchCollection, 1000)
+        const intervalId = setInterval(refetchCollection, 10000)
         return () => clearInterval(intervalId)
     }, [refetchCollection])
     if (isLoading) {

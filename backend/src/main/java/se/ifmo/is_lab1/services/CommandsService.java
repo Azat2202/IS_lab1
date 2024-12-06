@@ -36,8 +36,9 @@ public class CommandsService {
     }
 
     public StudyGroupResponse getByMinGroupAdmin() {
-        List<StudyGroup> allObjects = studyGroupRepository.findAll();
-        allObjects.sort(Comparator.comparing(a -> a.getGroupAdmin().getName()));
+        List<StudyGroup> allObjects = studyGroupRepository.findAllByGroupAdminIsNotNull();
+        allObjects
+                .sort(Comparator.comparing(a -> a.getGroupAdmin().getName()));
         return modelMapper.map(
                 allObjects.stream().findFirst().orElseThrow(StudyGroupNotFoundException::new),
                 StudyGroupResponse.class);
@@ -45,10 +46,14 @@ public class CommandsService {
 
     public Long getCountByGroupAdmin(Long groupAdminId) {
         List<StudyGroup> allObjects = studyGroupRepository.findAll();
+        if (groupAdminId == null)
+            return allObjects.stream()
+                    .filter(s -> s.getGroupAdmin() == null)
+                    .count();
         Person groupAdminDb = personRepository.findById(groupAdminId)
                 .orElseThrow(PersonNotFoundException::new);
         return allObjects.stream()
-                .filter(s -> s.getGroupAdmin().equals(groupAdminDb))
+                .filter(s -> s.getGroupAdmin() != null && s.getGroupAdmin().equals(groupAdminDb))
                 .count();
     }
 

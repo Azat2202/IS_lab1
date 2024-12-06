@@ -114,7 +114,7 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(objectId)
                 .orElseThrow(StudyGroupNotFoundException::new);
         studyGroupRepository.deleteById(objectId);
-        if (studyGroup.getGroupAdmin().getStudyGroups().size() == 1) {
+        if (studyGroup.getGroupAdmin() != null && studyGroup.getGroupAdmin().getStudyGroups().size() == 1) {
             personRepository.deleteById(studyGroup.getGroupAdmin().getId());
             if (studyGroup.getGroupAdmin().getLocation().getPersons().size() == 1) {
                 locationRepository.deleteById(studyGroup.getGroupAdmin().getLocation().getId());

@@ -4,9 +4,10 @@ import {
     useGetAllCoordinatesQuery,
     useGetAllLocationsQuery
 } from "../../store/types.generated";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Modal from "../../containers/Modal";
 import { CreateLocationModal } from "../CreateLocationModal";
+import toast from "react-hot-toast";
 
 export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void; }) {
     const [ isLocationModalOpen, setIsLocationModalOpen ] = useState(false);
@@ -16,13 +17,16 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
         name: "darya",
         eyeColor: "BLACK",
         locationId: 1,
-        weight: 0,
-        hairColor: "BLACK",
+        weight: 1,
+        hairColor: undefined,
         nationality: "FRANCE"
     });
 
     const handleOk = async () => {
-        await createPerson({ personRequest: formData }).unwrap();
+        await createPerson({ personRequest: formData })
+            .unwrap()
+            .then(() => toast("Объект создан!"))
+            .catch(() => toast("Ошибка создания объекта!"));
         closeModal();
     };
 
@@ -37,6 +41,8 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
             [name]: name === "locationId" || name === "weight" ? Number(value) : value,
         });
     };
+
+    useEffect(() => setFormData({...formData, locationId: locations?.[0]?.id || 1}), [locations]);
 
     const formValid: boolean =
         formData.name.trim().length > 0 &&
@@ -83,6 +89,7 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
                         <option value="BLACK">Черный</option>
                         <option value="BLUE">Синий</option>
                         <option value="BROWN">Коричневый</option>
+                        <option value={undefined}>Undefined</option>
                     </select>
                 </div>
 
@@ -107,7 +114,7 @@ export function CreatePersonModal({ isModalOpen, closeModal }: { isModalOpen: bo
                                     </option>
                                 ))
                             ) : (
-                                <option disabled>No persons available</option>
+                                <option disabled>No locations available</option>
                             )
                         }
                     </select>

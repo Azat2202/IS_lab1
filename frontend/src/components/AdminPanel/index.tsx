@@ -14,7 +14,7 @@ export function AdminPanel() {
     const {data: user, refetch } = useMeQuery()
 
     useEffect(() => {
-        const intervalId = setInterval(refetch, 1000)
+        const intervalId = setInterval(refetch, 10000)
         return () => clearInterval(intervalId)
     }, [refetch])
 
@@ -56,7 +56,7 @@ export function AdminProposals(){
     const [approveAdmin] = useApproveAdminProposalMutation();
     const [declineAdmin] = useDeclineAdminProposalMutation();
     useEffect(() => {
-        const intervalId = setInterval(refetch, 1000)
+        const intervalId = setInterval(refetch, 10000)
         return () => clearInterval(intervalId)
     }, [refetch])
     if (adminProposals?.length == 0)
