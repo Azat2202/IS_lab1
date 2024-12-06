@@ -14,13 +14,11 @@ import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
 import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
+import se.ifmo.is_lab1.models.ObjectAudit;
 import se.ifmo.is_lab1.models.StudyGroup;
 import se.ifmo.is_lab1.models.User;
 import se.ifmo.is_lab1.models.enums.Role;
-import se.ifmo.is_lab1.repositories.CoordinatesRepository;
-import se.ifmo.is_lab1.repositories.LocationRepository;
-import se.ifmo.is_lab1.repositories.PersonRepository;
-import se.ifmo.is_lab1.repositories.StudyGroupRepository;
+import se.ifmo.is_lab1.repositories.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +29,7 @@ public class StudyGroupService {
     private final PersonRepository personRepository;
     private final ModelMapper modelMapper;
     private final LocationRepository locationRepository;
+    private final ObjectAuditRepository objectAuditRepository;
 
     public StudyGroupResponse getStudyGroup(Integer id) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
@@ -63,6 +62,10 @@ public class StudyGroupService {
         );
         requestObject.setUser(user);
         StudyGroup savedStudyGroup = studyGroupRepository.save(requestObject);
+        ObjectAudit objectAudit = new ObjectAudit();
+        objectAudit.setTableName("studyGroup");
+        objectAudit.setUser(user);
+        objectAuditRepository.save(objectAudit);
         return modelMapper.map(savedStudyGroup, StudyGroupResponse.class);
     }
 
@@ -97,6 +100,10 @@ public class StudyGroupService {
         existingStudyGroup.setShouldBeExpelled(studyGroupRequest.getShouldBeExpelled());
         existingStudyGroup.setSemester(studyGroupRequest.getSemester());
         StudyGroup response = studyGroupRepository.save(existingStudyGroup);
+        ObjectAudit objectAudit = new ObjectAudit();
+        objectAudit.setTableName("studyGroup");
+        objectAudit.setUser(user);
+        objectAuditRepository.save(objectAudit);
         return modelMapper.map(response, StudyGroupResponse.class);
     }
 
@@ -123,6 +130,10 @@ public class StudyGroupService {
         if (studyGroup.getCoordinates().getStudyGroups().size() == 1) {
             coordinatesRepository.deleteById(studyGroup.getCoordinates().getId());
         }
+        ObjectAudit objectAudit = new ObjectAudit();
+        objectAudit.setTableName("studyGroup");
+        objectAudit.setUser(user);
+        objectAuditRepository.save(objectAudit);
         return modelMapper.map(studyGroup, StudyGroupResponse.class);
     }
 
