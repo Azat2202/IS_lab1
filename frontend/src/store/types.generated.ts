@@ -24,6 +24,8 @@ const injectedRtkApi = api.injectEndpoints({
           sortDirection: queryArg.sortDirection,
           groupName: queryArg.groupName,
           adminName: queryArg.adminName,
+          semester: queryArg.semester,
+          formOfEducation: queryArg.formOfEducation,
         },
       }),
     }),
@@ -195,6 +197,11 @@ export type GetAllStudyGroupsApiArg = {
   sortDirection?: string;
   groupName?: string;
   adminName?: string;
+  semester?: "FIRST" | "SECOND" | "SEVENTH" | "EIGHTH";
+  formOfEducation?:
+    | "DISTANCE_EDUCATION"
+    | "FULL_TIME_EDUCATION"
+    | "EVENING_CLASSES";
 };
 export type UpdateStudyGroupApiResponse =
   /** status 200 OK */ StudyGroupResponse;
@@ -316,29 +323,29 @@ export type StudyGroupResponse = {
   isEditable?: boolean;
 };
 export type SortObject = {
-  sorted?: boolean;
-  unsorted?: boolean;
   empty?: boolean;
+  unsorted?: boolean;
+  sorted?: boolean;
 };
 export type PageableObject = {
+  offset?: number;
+  sort?: SortObject;
   paged?: boolean;
   pageNumber?: number;
   pageSize?: number;
   unpaged?: boolean;
-  offset?: number;
-  sort?: SortObject;
 };
 export type PageStudyGroupResponse = {
-  totalPages?: number;
   totalElements?: number;
+  totalPages?: number;
   first?: boolean;
   last?: boolean;
-  pageable?: PageableObject;
-  numberOfElements?: number;
   size?: number;
   content?: StudyGroupResponse[];
   number?: number;
   sort?: SortObject;
+  numberOfElements?: number;
+  pageable?: PageableObject;
   empty?: boolean;
 };
 export type UpdateStudyGroupRequest = {

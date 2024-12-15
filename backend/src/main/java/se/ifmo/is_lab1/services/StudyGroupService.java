@@ -17,8 +17,13 @@ import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.models.ObjectAudit;
 import se.ifmo.is_lab1.models.StudyGroup;
 import se.ifmo.is_lab1.models.User;
+import se.ifmo.is_lab1.models.enums.FormOfEducation;
 import se.ifmo.is_lab1.models.enums.Role;
+import se.ifmo.is_lab1.models.enums.Semester;
 import se.ifmo.is_lab1.repositories.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,20 @@ public class StudyGroupService {
     private final LocationRepository locationRepository;
     private final ObjectAuditRepository objectAuditRepository;
 
+    private static Map<Semester, String> semesterMapping = new HashMap<>();
+    private static Map<FormOfEducation, String > formOfEducationMapping = new HashMap();
+
+    static {
+        semesterMapping.put(Semester.FIRST, "0");
+        semesterMapping.put(Semester.SECOND, "1");
+        semesterMapping.put(Semester.SEVENTH, "2");
+        semesterMapping.put(Semester.EIGHTH, "3");
+
+        formOfEducationMapping.put(FormOfEducation.DISTANCE_EDUCATION, "0");
+        formOfEducationMapping.put(FormOfEducation.FULL_TIME_EDUCATION, "1");
+        formOfEducationMapping.put(FormOfEducation.EVENING_CLASSES, "2");
+    }
+
     public StudyGroupResponse getStudyGroup(Integer id) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(StudyGroupNotFoundException::new);
@@ -39,10 +58,22 @@ public class StudyGroupService {
 
     public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable,
                                                       String groupName,
-                                                      String adminName) {
+                                                      String adminName,
+                                                      Semester semester,
+                                                      FormOfEducation formOfEducation) {
+        String semesterName;
+        String formOfEducationName;
+        if(semester == null)
+            semesterName = null;
+        else
+            semesterName = semester.name();
+        if (formOfEducation == null)
+            formOfEducationName = null;
+        else
+            formOfEducationName = formOfEducation.name();
         Page<StudyGroup> studyGroups =
                 studyGroupRepository.findByFilter(
-                        groupName, adminName, pageable
+                        groupName, adminName, semester, formOfEducation, pageable
                 );
         return studyGroups.map(s -> modelMapper.map(s, StudyGroupResponse.class));
     }

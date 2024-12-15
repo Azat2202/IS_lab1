@@ -2,7 +2,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {
     UpdateStudyGroupRequest,
     useAuthenticateMutation,
-    useDeleteStudyGroupMutation,
+    useDeleteStudyGroupMutation, useExpelEverybodyMutation,
     useGetAllStudyGroupsQuery, useMeQuery
 } from "../../store/types.generated";
 import React, {useEffect, useRef, useState} from "react";
@@ -21,8 +21,14 @@ export function MainTable() {
     const userLogin = useSelector((state: RootState) => state.auth.login);
     const [page, setPage] = useState(0);
     const filterRef = useRef<HTMLInputElement>(null);
+    const adminRef = useRef<HTMLInputElement>(null);
     const [groupName, setGroupName] = useState("");
     const [sortBy, setSortBy] = useState("");
+    const [groupAdmin, setGroupAdmin] = useState("");
+    const [semester, setSemester] = useState<"FIRST" | "SECOND" | "SEVENTH" | "EIGHTH">();
+    const [formOfEducation, setFormOfEducation] = useState<"DISTANCE_EDUCATION"
+        | "FULL_TIME_EDUCATION"
+        | "EVENING_CLASSES">();
     const [sortDirection, setSortDirection] = useState("asc");
 
     const dispatch = useDispatch();
@@ -30,11 +36,15 @@ export function MainTable() {
     const {data, error, isLoading, isSuccess, isError, refetch: refetchCollection} = useGetAllStudyGroupsQuery({
         page,
         groupName,
+        adminName: groupAdmin,
+        formOfEducation,
+        semester,
         sortBy,
         sortDirection
     });
     const [updateGroup, setUpdateGroup] = useState<UpdateStudyGroupRequest>();
     const [deleteStudyGroup] = useDeleteStudyGroupMutation();
+    const [expellEveryBody] = useExpelEverybodyMutation();
     useEffect(() => {
         const intervalId = setInterval(refetchCollection, 1000)
         return () => clearInterval(intervalId)
@@ -80,14 +90,12 @@ export function MainTable() {
                                     onChange={e => {
                                         setGroupName(e.target.value)
                                         refetchCollection()
-                                            .then(() => filterRef.current ? filterRef.current.focus() : {})
                                     }
                                     }
                                     value={groupName}
                                     name={"groupName"}
                                     placeholder={"Имя группы"}
                                     className="border border-black"
-                                    ref={filterRef}
                             />)
                             сортировать строки таблицы
                             (<select
@@ -150,9 +158,71 @@ export function MainTable() {
                         <th className="border border-black p-2">Владелец объекта</th>
                         <th className="border border-black p-2">Обновить</th>
                         <th className="border border-black p-2">Удалить</th>
+                        <th className="border border-black p-2">Отчислить всех</th>
                     </tr>
                     </thead>
                     <tbody>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"><input type={"text"}
+                                                                               onChange={e => {
+                                                                                   setGroupName(e.target.value)
+                                                                                   refetchCollection()
+                                                                                       .then(() => filterRef.current ? filterRef.current.focus() : {})
+                                                                               }
+                                                                               }
+                                                                               value={groupName}
+                                                                               name={"groupName"}
+                                                                               placeholder={"Имя группы"}
+                                                                               className="border border-black"
+                                                                               ref={filterRef}
+                    /></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"><select
+                        name="formOfEducation"
+                        value={formOfEducation}
+                        onChange={e => setFormOfEducation(e.target.value === undefined ? undefined : e.target.value as "DISTANCE_EDUCATION" | "FULL_TIME_EDUCATION" | "EVENING_CLASSES")}
+                        className="flex-grow p-2 border border-black "
+                    >
+                        <option value={undefined}></option>
+                        <option value="DISTANCE_EDUCATION">Заочное обучение</option>
+                        <option value="FULL_TIME_EDUCATION">Дневное обучение</option>
+                        <option value="EVENING_CLASSES">Вечернее обучение</option>
+                    </select></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"><select
+                        name="semester"
+                        value={semester}
+                        onChange={e =>
+                            setSemester(e.target.value === undefined ? undefined : e.target.value as "FIRST" | "SECOND" | "SEVENTH" | "EIGHTH")}
+                        className="flex-grow p-2 border border-black "
+                    >
+                        <option value={undefined}></option>
+                        <option value="FIRST">Первый</option>
+                        <option value="SECOND">Второй</option>
+                        <option value="SEVENTH">Седьмой</option>
+                        <option value="EIGHTH">Восьмой</option>
+                    </select></td>
+                    <td className="border border-black p-1 text-center"><input type={"text"}
+                                                                               onChange={e => {
+                                                                                   setGroupAdmin(e.target.value)
+                                                                                   refetchCollection()
+                                                                                       .then(() => adminRef.current ? adminRef.current.focus() : {})
+                                                                               }
+                                                                               }
+                                                                               value={groupAdmin}
+                                                                               name={"groupAdmin"}
+                                                                               placeholder={"Имя админа"}
+                                                                               className="border border-black"
+                                                                               ref={adminRef}
+                    /></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
+                    <td className="border border-black p-1 text-center"></td>
                     {data.content?.map((group, index) => (
                         <tr key={group.id}>
                             <td className="border border-black p-1 text-center">{group.id}</td>
@@ -216,6 +286,16 @@ export function MainTable() {
                                             refetchCollection();
                                         })
                                 }} className="underline text-blue-800">Удалить</button> : ""
+                            }</td>
+                            <td className="border border-black p-1 text-center">{(
+                                user?.role == "ADMIN" || group.user?.username == userLogin)
+                            && group.id ?
+                                <button onClick={() => {
+                                    expellEveryBody({groupId: group.id ?? 0})
+                                        .then(() => {
+                                            refetchCollection();
+                                        })
+                                }} className="underline text-blue-800">Отчислить всех</button> : ""
                             }</td>
                         </tr>
                     ))}

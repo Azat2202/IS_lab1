@@ -46,12 +46,14 @@ public class StudyGroup{
     private int transferredStudents; //Значение поля должно быть больше 0
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private FormOfEducation formOfEducation; //Поле не может быть null
 
     @Column
     private Integer shouldBeExpelled; //Значение поля должно быть больше 0, Поле может быть null
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Semester semester; //Поле не может быть null
 
     @ManyToOne(fetch = FetchType.EAGER)

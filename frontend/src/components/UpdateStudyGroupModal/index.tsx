@@ -26,7 +26,6 @@ export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, grou
 
     useEffect(() => {
         if (isModalOpen) {
-            console.log(group)
             setFormData({...group});
         }
     }, [isModalOpen, group]);
@@ -35,7 +34,6 @@ export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, grou
         await updateStudyGroup({updateStudyGroupRequest: formData}).unwrap()
             .then(() => toast("Объект успешно обновлен", {icon: "🎉"}))
             .catch((e) => {
-                console.log(e)
                 toast("Этот объект нельзя обновить", {icon: "❌"});
             });
         closeModal();
@@ -47,6 +45,9 @@ export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, grou
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = e.target;
+        if(name == "shouldBeExpelled" && Number(value) == 0){
+            return setFormData({...formData, shouldBeExpelled: undefined})
+        }
         setFormData({
             ...formData,
             [name]: name === "studentsCount"
@@ -59,7 +60,15 @@ export function UpdateStudyGroupModal({isModalOpen, closeModal, isEditable, grou
                 : value,
         });
     };
-    return <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel}>
+
+    const formValid: boolean =
+        formData.name.trim().length > 0 &&
+        formData.studentsCount > 0 &&
+        formData.expelledStudents > 0 &&
+        formData.transferredStudents > 0 &&
+        ((formData?.shouldBeExpelled === undefined) || (formData?.shouldBeExpelled === null)  || (formData?.shouldBeExpelled ?? -1) > 0);
+
+    return <Modal isOpen={isModalOpen} onOk={handleOk} onClose={handleCancel} okDisabled={!formValid}>
         <div className="space-y-2 bg-white">
             <div className="flex items-center space-x-4">
                 <label className="w-1/3 font-medium text-gray-700">Имя группы</label>

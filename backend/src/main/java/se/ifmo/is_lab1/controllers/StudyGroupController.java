@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import se.ifmo.is_lab1.dto.collection.StudyGroupRequest;
 import se.ifmo.is_lab1.dto.collection.UpdateStudyGroupRequest;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
+import se.ifmo.is_lab1.models.enums.FormOfEducation;
+import se.ifmo.is_lab1.models.enums.Semester;
 import se.ifmo.is_lab1.services.StudyGroupService;
 
 @RequiredArgsConstructor
@@ -41,13 +43,15 @@ public class StudyGroupController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(required = false) String groupName,
-            @RequestParam(required = false) String adminName
-    ) {
+            @RequestParam(required = false) String adminName,
+            @RequestParam(required = false) Semester semester,
+            @RequestParam(required = false) FormOfEducation formOfEducation
+            ) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC
                 : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return studyGroupService.getAllStudyGroups(pageable, groupName, adminName);
+        return studyGroupService.getAllStudyGroups(pageable, groupName, adminName, semester, formOfEducation);
     }
 
     @PostMapping

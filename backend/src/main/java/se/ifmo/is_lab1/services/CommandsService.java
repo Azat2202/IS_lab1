@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
 import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
 import se.ifmo.is_lab1.models.Person;
 import se.ifmo.is_lab1.models.StudyGroup;
 import se.ifmo.is_lab1.models.User;
+import se.ifmo.is_lab1.models.enums.Role;
 import se.ifmo.is_lab1.repositories.PersonRepository;
 import se.ifmo.is_lab1.repositories.StudyGroupRepository;
 
@@ -58,8 +60,13 @@ public class CommandsService {
     }
 
     public StudyGroupResponse expelEverybody(Integer groupId) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup group = studyGroupRepository.findById(groupId)
                 .orElseThrow(StudyGroupNotFoundException::new);
+        if (!user.getRole().equals(Role.ADMIN) &&
+                !group.getUser().getUsername().equals(user.getUsername())) {
+            throw new ObjectDontBelongToUserException();
+        }
         group.setExpelledStudents(
                 group.getExpelledStudents() +
                         group.getStudentsCount()
