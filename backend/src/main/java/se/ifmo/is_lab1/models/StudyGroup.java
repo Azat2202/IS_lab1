@@ -3,9 +3,7 @@ package se.ifmo.is_lab1.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +18,8 @@ import java.time.ZoneId;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder
 public class StudyGroup{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

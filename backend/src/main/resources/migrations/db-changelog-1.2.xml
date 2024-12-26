@@ -7,7 +7,7 @@
     <changeSet id="1727950719988-1" author="Azat222">
         <addColumn tableName="study_group">
             <column name="user_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_study_group_users" references="users(id)"/>
+                <constraints foreignKeyName="fk_study_group_users" references="users(id)"/>
             </column>
         </addColumn>
     </changeSet>

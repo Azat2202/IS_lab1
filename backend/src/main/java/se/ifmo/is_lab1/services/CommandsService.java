@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
 import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
@@ -26,6 +27,7 @@ public class CommandsService {
     private final ModelMapper modelMapper;
     private final PersonRepository personRepository;
 
+    @Transactional(rollbackFor = Exception.class)
     public StudyGroupResponse deleteByShouldBeExpelled(Integer shouldBeExpelled) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<StudyGroup> allObjects = studyGroupRepository.findAll();
@@ -37,6 +39,7 @@ public class CommandsService {
         return studyGroupService.deleteStudyGroup(toDelete.getId());
     }
 
+    @Transactional(readOnly = true)
     public StudyGroupResponse getByMinGroupAdmin() {
         List<StudyGroup> allObjects = studyGroupRepository.findAllByGroupAdminIsNotNull();
         allObjects
@@ -46,6 +49,7 @@ public class CommandsService {
                 StudyGroupResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public Long getCountByGroupAdmin(Long groupAdminId) {
         List<StudyGroup> allObjects = studyGroupRepository.findAll();
         if (groupAdminId == null)
@@ -59,6 +63,7 @@ public class CommandsService {
                 .count();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public StudyGroupResponse expelEverybody(Integer groupId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup group = studyGroupRepository.findById(groupId)
@@ -76,6 +81,7 @@ public class CommandsService {
         return modelMapper.map(group, StudyGroupResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public Integer getAllExpelledCount() {
         List<StudyGroup> allObjects = studyGroupRepository.findAll();
         return allObjects.stream()

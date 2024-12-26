@@ -141,7 +141,7 @@ export function MainTable() {
                         </li>
                     </ul>
                 </div>
-                <table className="table-auto border-collapse border-2 border-black m-2">
+                <table className="table-auto text border-collapse border-2 border-black m-2">
                     <thead className="text-center">
                     <tr>
                         <th className="border border-black p-2">Id</th>
@@ -173,7 +173,7 @@ export function MainTable() {
                                                                                value={groupName}
                                                                                name={"groupName"}
                                                                                placeholder={"Имя группы"}
-                                                                               className="border border-black"
+                                                                               className="border border-black w-20"
                                                                                ref={filterRef}
                     /></td>
                     <td className="border border-black p-1 text-center"></td>
@@ -216,7 +216,7 @@ export function MainTable() {
                                                                                value={groupAdmin}
                                                                                name={"groupAdmin"}
                                                                                placeholder={"Имя админа"}
-                                                                               className="border border-black"
+                                                                               className="border border-black w-20"
                                                                                ref={adminRef}
                     /></td>
                     <td className="border border-black p-1 text-center"></td>

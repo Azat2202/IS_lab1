@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.is_lab1.dto.collection.CoordinatesRequest;
 import se.ifmo.is_lab1.messages.collection.CoordinatesResponse;
 import se.ifmo.is_lab1.models.Coordinates;
@@ -23,11 +24,13 @@ public class CoordinatesService {
     private final ModelMapper modelMapper;
     private final ObjectAuditRepository objectAuditRepository;
 
+    @Transactional(readOnly = true)
     public List<CoordinatesResponse> getAllCoordinates() {
         List<Coordinates> coordinates = coordinatesRepository.findAll();
         return modelMapper.map(coordinates, new TypeToken<List<CoordinatesResponse>>(){}.getType());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public CoordinatesResponse createCoordinates(CoordinatesRequest coordinatesRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Coordinates coordinates = modelMapper.map(coordinatesRequest, Coordinates.class);

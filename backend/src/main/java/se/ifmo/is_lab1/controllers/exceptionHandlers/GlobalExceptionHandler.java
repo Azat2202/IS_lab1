@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import se.ifmo.is_lab1.exceptions.StudyGroupRuntimeException;
 
 import java.util.HashMap;
@@ -94,6 +96,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ StudyGroupRuntimeException.class })
     public ProblemDetail malformedJwtException(final StudyGroupRuntimeException exception) {
         return ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());
+    }
+
+    @ExceptionHandler({ HttpClientErrorException.class })
+    public ProblemDetail handleHttpClientErrorExceptionException(final HttpClientErrorException exception) {
+        return ProblemDetail.forStatusAndDetail(exception.getStatusCode(), exception.getMessage());
+    }
+
+    @ExceptionHandler({ CannotAcquireLockException.class })
+    public ProblemDetail handleHttpClientErrorExceptionException(final CannotAcquireLockException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "do not ddos me!");
     }
 
 

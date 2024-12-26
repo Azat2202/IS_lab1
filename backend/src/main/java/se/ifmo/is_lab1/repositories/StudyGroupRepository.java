@@ -31,4 +31,7 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Integer>
     );
 
     List<StudyGroup> findAllByGroupAdminIsNotNull();
+
+    Boolean existsByName(String name);
+    Integer countByName(String name);
 }

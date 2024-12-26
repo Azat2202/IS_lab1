@@ -70,6 +70,27 @@ const injectedRtkApi = api.injectEndpoints({
     becomeAdmin: build.mutation<BecomeAdminApiResponse, BecomeAdminApiArg>({
       query: () => ({ url: `/api/user/proposal`, method: "POST" }),
     }),
+    getFeedHistory: build.query<
+      GetFeedHistoryApiResponse,
+      GetFeedHistoryApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/collection/studyGroup/feed`,
+        params: {
+          page: queryArg.page,
+          size: queryArg.size,
+          sortBy: queryArg.sortBy,
+          sortDirection: queryArg.sortDirection,
+        },
+      }),
+    }),
+    uploadFeed: build.mutation<UploadFeedApiResponse, UploadFeedApiArg>({
+      query: (queryArg) => ({
+        url: `/api/collection/studyGroup/feed`,
+        method: "POST",
+        body: queryArg.body,
+      }),
+    }),
     getAllPersons: build.query<GetAllPersonsApiResponse, GetAllPersonsApiArg>({
       query: () => ({ url: `/api/collection/person` }),
     }),
@@ -223,6 +244,19 @@ export type DeclineAdminProposalApiArg = {
 };
 export type BecomeAdminApiResponse = /** status 200 OK */ AdminProposalResponse;
 export type BecomeAdminApiArg = void;
+export type GetFeedHistoryApiResponse = /** status 200 OK */ PageFeedResponse;
+export type GetFeedHistoryApiArg = {
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: string;
+};
+export type UploadFeedApiResponse = unknown;
+export type UploadFeedApiArg = {
+  body: {
+    file: Blob;
+  };
+};
 export type GetAllPersonsApiResponse = /** status 200 OK */ PersonResponse[];
 export type GetAllPersonsApiArg = void;
 export type CreatePersonApiResponse = /** status 200 OK */ PersonResponse;
@@ -324,8 +358,8 @@ export type StudyGroupResponse = {
 };
 export type SortObject = {
   empty?: boolean;
-  unsorted?: boolean;
   sorted?: boolean;
+  unsorted?: boolean;
 };
 export type PageableObject = {
   offset?: number;
@@ -336,16 +370,16 @@ export type PageableObject = {
   unpaged?: boolean;
 };
 export type PageStudyGroupResponse = {
-  totalElements?: number;
   totalPages?: number;
+  totalElements?: number;
   first?: boolean;
   last?: boolean;
   size?: number;
   content?: StudyGroupResponse[];
   number?: number;
   sort?: SortObject;
-  numberOfElements?: number;
   pageable?: PageableObject;
+  numberOfElements?: number;
   empty?: boolean;
 };
 export type UpdateStudyGroupRequest = {
@@ -381,6 +415,27 @@ export type StudyGroupRequest = {
 export type AdminProposalResponse = {
   id?: number;
   user?: UserResponse;
+};
+export type FeedResponse = {
+  id?: number;
+  creationDate?: string;
+  feedUrl?: string;
+  batchSize?: number;
+  isSuccessful?: boolean;
+  user?: UserResponse;
+};
+export type PageFeedResponse = {
+  totalPages?: number;
+  totalElements?: number;
+  first?: boolean;
+  last?: boolean;
+  size?: number;
+  content?: FeedResponse[];
+  number?: number;
+  sort?: SortObject;
+  pageable?: PageableObject;
+  numberOfElements?: number;
+  empty?: boolean;
 };
 export type PersonResponse = {
   id?: number;
@@ -444,6 +499,8 @@ export const {
   useApproveAdminProposalMutation,
   useDeclineAdminProposalMutation,
   useBecomeAdminMutation,
+  useGetFeedHistoryQuery,
+  useUploadFeedMutation,
   useGetAllPersonsQuery,
   useCreatePersonMutation,
   useGetAllLocationsQuery,

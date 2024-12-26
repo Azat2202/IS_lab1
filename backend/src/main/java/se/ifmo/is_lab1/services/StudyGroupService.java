@@ -1,12 +1,22 @@
 package se.ifmo.is_lab1.services;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
+import se.ifmo.is_lab1.dto.batch.BatchRequest;
+import se.ifmo.is_lab1.dto.batch.StudyGroupBatchRequest;
 import se.ifmo.is_lab1.dto.collection.StudyGroupRequest;
 import se.ifmo.is_lab1.dto.collection.UpdateStudyGroupRequest;
 import se.ifmo.is_lab1.exceptions.CoordinatesNotFoundException;
@@ -14,16 +24,19 @@ import se.ifmo.is_lab1.exceptions.ObjectDontBelongToUserException;
 import se.ifmo.is_lab1.exceptions.PersonNotFoundException;
 import se.ifmo.is_lab1.exceptions.StudyGroupNotFoundException;
 import se.ifmo.is_lab1.messages.collection.StudyGroupResponse;
-import se.ifmo.is_lab1.models.ObjectAudit;
-import se.ifmo.is_lab1.models.StudyGroup;
-import se.ifmo.is_lab1.models.User;
+import se.ifmo.is_lab1.models.*;
 import se.ifmo.is_lab1.models.enums.FormOfEducation;
 import se.ifmo.is_lab1.models.enums.Role;
 import se.ifmo.is_lab1.models.enums.Semester;
 import se.ifmo.is_lab1.repositories.*;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.lang.Math.random;
+import static java.lang.System.currentTimeMillis;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +50,7 @@ public class StudyGroupService {
     private final ObjectAuditRepository objectAuditRepository;
 
     private static Map<Semester, String> semesterMapping = new HashMap<>();
-    private static Map<FormOfEducation, String > formOfEducationMapping = new HashMap();
+    private static Map<FormOfEducation, String> formOfEducationMapping = new HashMap();
 
     static {
         semesterMapping.put(Semester.FIRST, "0");
@@ -56,21 +69,12 @@ public class StudyGroupService {
         return modelMapper.map(studyGroup, StudyGroupResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public Page<StudyGroupResponse> getAllStudyGroups(Pageable pageable,
                                                       String groupName,
                                                       String adminName,
                                                       Semester semester,
                                                       FormOfEducation formOfEducation) {
-        String semesterName;
-        String formOfEducationName;
-        if(semester == null)
-            semesterName = null;
-        else
-            semesterName = semester.name();
-        if (formOfEducation == null)
-            formOfEducationName = null;
-        else
-            formOfEducationName = formOfEducation.name();
         Page<StudyGroup> studyGroups =
                 studyGroupRepository.findByFilter(
                         groupName, adminName, semester, formOfEducation, pageable
@@ -78,8 +82,25 @@ public class StudyGroupService {
         return studyGroups.map(s -> modelMapper.map(s, StudyGroupResponse.class));
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public StudyGroupResponse createStudyGroup(StudyGroupRequest studyGroupRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        StudyGroup savedStudyGroup = saveStudyGroup(studyGroupRequest, user);
+        ObjectAudit objectAudit = new ObjectAudit();
+        objectAudit.setTableName("studyGroup");
+        objectAudit.setUser(user);
+        objectAuditRepository.save(objectAudit);
+        return modelMapper.map(savedStudyGroup, StudyGroupResponse.class);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    protected StudyGroup saveStudyGroup(StudyGroupRequest studyGroupRequest, User user) {
+        if (!studyGroupRequest.validate()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid study group request");
+        }
+        if (studyGroupRepository.existsByName(studyGroupRequest.getName())) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Study group with this name already exists");
+        }
         StudyGroup requestObject = modelMapper.map(studyGroupRequest, StudyGroup.class);
         if (studyGroupRequest.getGroupAdminId() != null) {
             requestObject.setGroupAdmin(
@@ -92,14 +113,13 @@ public class StudyGroupService {
                         .orElseThrow(CoordinatesNotFoundException::new)
         );
         requestObject.setUser(user);
-        StudyGroup savedStudyGroup = studyGroupRepository.save(requestObject);
-        ObjectAudit objectAudit = new ObjectAudit();
-        objectAudit.setTableName("studyGroup");
-        objectAudit.setUser(user);
-        objectAuditRepository.save(objectAudit);
-        return modelMapper.map(savedStudyGroup, StudyGroupResponse.class);
+        StudyGroup saved = studyGroupRepository.save(requestObject);
+        if(studyGroupRepository.countByName(studyGroupRequest.getName()) != 1)
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Conflict in study group creation try again");
+        return saved;
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public StudyGroupResponse updateStudyGroup(UpdateStudyGroupRequest studyGroupRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         StudyGroup existingStudyGroup = studyGroupRepository.findById(studyGroupRequest.getId())
@@ -135,18 +155,22 @@ public class StudyGroupService {
         objectAudit.setTableName("studyGroup");
         objectAudit.setUser(user);
         objectAuditRepository.save(objectAudit);
+        if (!studyGroupRepository.getReferenceById(response.getId()).equals(response))
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Conflict in study group update try again");
+        if(studyGroupRepository.countByName(studyGroupRequest.getName()) != 1)
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Conflict in study group update try again");
         return modelMapper.map(response, StudyGroupResponse.class);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public StudyGroupResponse deleteStudyGroup(Integer objectId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!user.getRole().equals(Role.ADMIN)  &&
+        if (!user.getRole().equals(Role.ADMIN) &&
                 !studyGroupRepository.findById(objectId)
-                .orElseThrow(StudyGroupNotFoundException::new)
-                .getUser()
-                .getId()
-                .equals(user.getId())) {
+                        .orElseThrow(StudyGroupNotFoundException::new)
+                        .getUser()
+                        .getId()
+                        .equals(user.getId())) {
             throw new ObjectDontBelongToUserException();
         }
         StudyGroup studyGroup = studyGroupRepository.findById(objectId)
@@ -168,5 +192,74 @@ public class StudyGroupService {
         return modelMapper.map(studyGroup, StudyGroupResponse.class);
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.SUPPORTS)
+    public Integer uploadBatch(MultipartFile file, User user) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(BatchRequest.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        BatchRequest batchRequest = reader.readValue(file.getInputStream());
+        List<StudyGroup> batch = batchRequest.getGroups().stream()
+                .map(this::parseStudyGroupNestedObjects)
+                .map(s -> saveStudyGroup(s, user))
+                .toList();
+        return batch.size();
+    }
 
+    private StudyGroupRequest parseStudyGroupNestedObjects(StudyGroupBatchRequest batchRequest) {
+        if (!batchRequest.validate())
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid study group request");
+        Coordinates coordinates;
+        Location location = Location.builder().build();
+        Person groupAdmin;
+        if (batchRequest.getCoordinates().getId() != null) {
+            coordinates = coordinatesRepository.findById(batchRequest.getCoordinates().getId())
+                    .orElseThrow(CoordinatesNotFoundException::new);
+        } else {
+            coordinates = new Coordinates();
+            coordinates.setX(batchRequest.getCoordinates().getX());
+            coordinates.setY(batchRequest.getCoordinates().getY());
+            coordinates = coordinatesRepository.save(coordinates);
+        }
+        if (batchRequest.getGroupAdmin().getId() == null) {
+            if (batchRequest.getGroupAdmin().getLocation().getId() != null) {
+                location = locationRepository.findById(batchRequest.getGroupAdmin().getLocation().getId())
+                        .orElseThrow(CoordinatesNotFoundException::new);
+            } else {
+                location = Location.builder()
+                        .x(batchRequest.getGroupAdmin().getLocation().getX())
+                        .y(batchRequest.getGroupAdmin().getLocation().getY())
+                        .z(batchRequest.getGroupAdmin().getLocation().getZ())
+                        .name(batchRequest.getGroupAdmin().getLocation().getName())
+                        .build();
+                location = locationRepository.save(location);
+            }
+        }
+        if (batchRequest.getGroupAdmin().getId() != null) {
+            groupAdmin = personRepository.findById(batchRequest.getGroupAdmin().getId())
+                    .orElseThrow(PersonNotFoundException::new);
+        } else {
+            groupAdmin = Person.builder()
+                    .name(batchRequest.getGroupAdmin().getName())
+                    .location(location)
+                    .eyeColor(batchRequest.getGroupAdmin().getEyeColor())
+                    .hairColor(batchRequest.getGroupAdmin().getHairColor())
+                    .nationality(batchRequest.getGroupAdmin().getNationality())
+                    .weight(batchRequest.getGroupAdmin().getWeight())
+                    .build();
+            groupAdmin = personRepository.save(groupAdmin);
+        }
+        StudyGroupRequest studyGroup = StudyGroupRequest.builder()
+                .name(batchRequest.getName())
+                .coordinatesId(coordinates.getId())
+                .studentsCount(batchRequest.getStudentsCount())
+                .expelledStudents(batchRequest.getExpelledStudents())
+                .transferredStudents(batchRequest.getTransferredStudents())
+                .formOfEducation(batchRequest.getFormOfEducation())
+                .shouldBeExpelled(batchRequest.getShouldBeExpelled())
+                .semester(batchRequest.getSemester())
+                .groupAdminId(groupAdmin.getId())
+                .isEditable(batchRequest.getIsEditable())
+                .build();
+        return studyGroup;
+    }
 }

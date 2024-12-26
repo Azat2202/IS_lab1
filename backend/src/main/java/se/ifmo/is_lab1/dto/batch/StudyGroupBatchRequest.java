@@ -1,23 +1,22 @@
-package se.ifmo.is_lab1.dto.collection;
+package se.ifmo.is_lab1.dto.batch;
 
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import se.ifmo.is_lab1.models.enums.FormOfEducation;
 import se.ifmo.is_lab1.models.enums.Semester;
 
 @Data
-@AllArgsConstructor
-@Builder
-public class StudyGroupRequest {
+public class StudyGroupBatchRequest {
     @NotNull
     @NotEmpty
     @NotBlank
     private String name; //Поле не может быть null, Строка не может быть пустой
 
     @NotNull
-    private Long coordinatesId; //Поле не может быть null
+    private CoordinatesBatchRequest coordinates; //Поле не может быть null
 
     @NotNull
     @Positive
@@ -40,7 +39,7 @@ public class StudyGroupRequest {
     @NotNull
     private Semester semester; //Поле не может быть null
 
-    private Long groupAdminId; //Поле может быть null
+    private PersonBatchRequest groupAdmin; //Поле может быть null
 
     private Boolean isEditable = Boolean.TRUE;
 
@@ -48,7 +47,7 @@ public class StudyGroupRequest {
         return name != null &&
                 !name.isEmpty() &&
                 !name.isBlank() &&
-                coordinatesId != null &&
+                coordinates.validate() &&
                 studentsCount != null &&
                 studentsCount > 0 &&
                 expelledStudents != null &&
@@ -57,6 +56,7 @@ public class StudyGroupRequest {
                 formOfEducation != null &&
                 shouldBeExpelled != null &&
                 shouldBeExpelled > 0 &&
-                semester != null;
+                semester != null &&
+                groupAdmin.validate();
     }
 }

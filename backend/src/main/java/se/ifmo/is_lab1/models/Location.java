@@ -8,9 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -18,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
